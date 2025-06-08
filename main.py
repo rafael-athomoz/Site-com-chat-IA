@@ -14,9 +14,7 @@ from openai import OpenAI
 
 
 modelo = OpenAI(
-    api_key=sk
-    - proj
-    - N5P7IwGPfNf6yqP3CMYg_8F3j3slgCCLxIdorcda0T7QJGRN_Q6TMeeflpm2sg21FyFVPXxDpaT3BlbkFJgFyEiLJcNaFdYPhg9hX9yLac9fsZ6mNf1c8iFUxCA2fXomvqfX_1CuM_u4uQZlowd2XzRifYgA
+    api_key="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"
 )
 st.write("# ChatBot com IA")
 
@@ -42,10 +40,12 @@ if mensagens_usuario:
     st.session_state["lista_mensagens"].append(mensagem)
 
     # resposta da IA
-    resposta_ia = modelo.chat.completions.create(
-        mensages=st.session_state["lista_mensagens"],
-        model="gpt-4o",
+    resposta_modelo = modelo.chat.completions.create(
+        messages=st.session_state["lista_mensagens"], model="gpt-3.5-turbo"
     )
+
+    print(resposta_modelo)
+    resposta_ia = resposta_modelo.choices[0].message
 
     # exibi a resposta na tela
     st.chat_message("assistant").write(resposta_ia)
