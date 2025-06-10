@@ -5,6 +5,8 @@
     "historico",
     "mensages",
     "padrao",
-    "usuario"
+    "pycache",
+    "usuario",
+    "venv"
   ]
 }
