@@ -1,0 +1,17 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+# Não versionar o arquivo .env (protege sua API KEY)
+.env
+
+# Não versionar ambiente virtual (caso você use venv)
+.venv/
+venv/
+
+# Arquivos temporários do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos de sistema (caso você use Mac ou Windows)
+.DS_Store
+Thumbs.db
