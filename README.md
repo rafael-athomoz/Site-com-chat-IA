@@ -45,13 +45,14 @@ Leitor de Edital 1.0 é um aplicativo voltado para análise técnica de editais 
    git clone https://github.com/<seu-usuario>/leitor-edital.git
    cd leitor-edital
 
-   ```bash
+      ├── .chatai             # Ambiente virtual
+      ├── .vscode             # Configurações do Editor
+      ├── assets/             # Ícones e imagens
       ├── app.py              # Aplicação Streamlit
       ├── utils/
-      │   ├── pdf_utils.py    # Extração de PDF
       │   ├── excel_utils.py  # Geração de planilha
+      │   ├── pdf_utils.py    # Extração de PDF
       │   └── openai_utils.py # Prompt + chamadas OpenAI
-      ├── assets/             # Ícones e imagens
       ├── requirements.txt    # Dependências
       ├── .env.example        # Modelo de variáveis de ambiente
       └── README.md           # Este arquivo
