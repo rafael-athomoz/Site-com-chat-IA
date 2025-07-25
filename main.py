@@ -33,6 +33,7 @@ def extrair_texto_pdf(uploaded_file):
         st.error(f"Erro ao extrair texto do PDF: {e}")
         return None
 
+
 # SECTION_GENERATE EXCEL -------------------------------------------------------------------------------------------------------
 def gerar_excel_resumo(dados_para_excel):  # Resumo do edital  
     """Gera um arquivo Excel Resumo do edital."""
