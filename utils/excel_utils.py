@@ -56,13 +56,15 @@ def gerar_excel_habilitacao(dados_para_excel):   # Habilitação do edital
                 if isinstance(valor, dict):
                     obrigatoriedade = valor.get("obrigatoriedade do documento", "Não informado")
                     localizacao_doc = valor.get("Localização da informação do documento", "Não informado")
+                    observacoes = valor.get("Observações", "Não informado")
                 else:
                     obrigatoriedade = valor
                     localizacao_doc = "Não informado"
                 habilitacao_convertido.append({
                     "Documento": chave,
                     "Obrigatoriedade": obrigatoriedade,
-                    "Localização da informação do documento": localizacao_doc
+                    "Localização da informação do documento": localizacao_doc,
+                    "Observações": observacoes
                 })
 
             df_habilitacao = pd.DataFrame(habilitacao_convertido)
@@ -76,7 +78,7 @@ def gerar_excel_habilitacao(dados_para_excel):   # Habilitação do edital
         return None
 
 
-def gerar_excel_credenciamento(dados_para_excel):   # Habilitação do edital
+def gerar_excel_credenciamento(dados_para_excel):   # Credenciamento do edital
     """Gera um arquivo Excel de Credenciamento do Edital."""
     if not dados_para_excel:
         return None

@@ -8,7 +8,9 @@ from openai import OpenAI
 # extrair_texto_pdf
 from utils.pdf_utils import extrair_texto_pdf
 # gerar_excel_resumo, gerar_excel_habilitacao, gerar_excel_credenciamento
-from utils.excel_utils import gerar_excel_resumo, gerar_excel_habilitacao, gerar_excel_credenciamento
+from utils.excel_utils import gerar_excel_resumo
+from utils.excel_utils import gerar_excel_habilitacao
+from utils.excel_utils import gerar_excel_credenciamento
 
 
 # Carrega variáveis de ambiente
@@ -180,43 +182,49 @@ if st.session_state["contexto_pdf"]:  # habilitação edital prompt
             organizando-as em um **objeto JSON complexo** com as seguintes chaves e estruturas exatas:
 
             "Habilitação do Edital": {{
-                "Ato constitutivo, estatuto ou contrato social em vigor, devidamente registrado na Junta Comercial": {{
+                "Ato constitutivo, estatuto ou **Contrato Social** em vigor, devidamente registrado na Junta Comercial": {{
                     "obrigatoriedade do documento": "É obrigatório",
-                    "Localização da informação do documento": "Item/Cláusula/Título no edital"
+                    "Localização da informação do documento": "Item/Cláusula no edital",
+                    "Observações": "Observações sobre a procuração, se necessário"
                 }},
                 "Documento de Identidade do sócio RG e CPF": {{
                     "obrigatoriedade do documento": "É obrigatório",
-                    "Localização da informação do documento": "Item/Cláusula/Título no edital"
+                    "Localização da informação do documento": "Item/Cláusula no edital",
+                    "Observações": "Observações sobre a procuração, se necessário"
                 }},
                 "Exigência de certidão simplificada da JUCESP (ou da junta comercial de qualquer estado)": {{
                     "obrigatoriedade do documento": "É obrigatório",
-                    "Localização da informação do documento": "Item/Cláusula/Título no edital"
+                    "Localização da informação do documento": "Item/Cláusula no edital",
+                    "Observações": "Observações sobre a procuração, se necessário"
                 }},
                 "Documento de Optante pelo Simples Nacional": {{
                     "obrigatoriedade do documento": "É obrigatório",
-                    "Localização da informação do documento": "Item/Cláusula/Título no edital"
+                    "Localização da informação do documento": "Item/Cláusula no edital",
+                    "Observações": "Observações sobre a procuração, se necessário"
                 }},
                 "Procuração de Representante Legal": {{
                     "obrigatoriedade do documento": "É obrigatório",
-                    "Localização da informação do documento": "Item/Cláusula/Título no edital"
+                    "Localização da informação do documento": "Item/Cláusula no edital",
+                    "Observações": "Observações sobre a procuração, se necessário"
                 }}
             }}
 
             **Instruções Cruciais:**
-            1.  **Analise todo o edital com extrema atenção** para não perder nenhum detalhe.
+            1.  **Analise o arquivo carregado com foco na secção Habilitação com extrema atenção**
+                para não perder nenhum detalhe.
             2.  **Preencha TODOS os campos** no objeto "Habilitação do Edital". Se a informação não for encontrada,
                 indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
             3.  Para as listas de documentos (Habilitação) , inclua **TODOS os itens
                 encontrados no edital**, mesmo que pareçam óbvios ou genéricos.
             4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação do documento"
-                (Item/Cláusula/Título) e quaisquer "Observações" pertinentes (prazos de emissão, requisitos de
+                (Item/Cláusula) e quaisquer "Observações" pertinentes (prazos de emissão, requisitos de
                 autenticação, etc.).
-            6.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas
+            5.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas
                 estejam vazias se nenhuma informação for encontrada.
 
             **Conteúdo do Edital:**
             \"\"\"
-            {st.session_state["contexto_pdf"][:10000]}
+            {st.session_state["contexto_pdf"][:20000]}
             \"\"\"
             """
 
