@@ -45,15 +45,19 @@ Leitor de Edital 1.0 é um aplicativo voltado para análise técnica de editais 
    git clone https://github.com/<seu-usuario>/leitor-edital.git
    cd leitor-edital
 
-   ```bash
-      ├── app.py              # Aplicação Streamlit
+      ├── .chatai/
+      ├── .vscode/
+      ├── assets/
       ├── utils/
       │   ├── excel_utils.py  # Geração de planilha
       │   ├── pdf_utils.py    # Extração de PDF
       │   └── openai_utils.py # Prompt + chamadas OpenAI
-      ├── requirements.txt    # Dependências
       ├── .env.example        # Modelo de variáveis de ambiente
-      └── README.md           # Este arquivo
+      ├── .gitgnore           # Gitgnore config
+      ├── main_test.py        # Aplicação Streamlit testes
+      ├── main.py             # Aplicação Streamlit
+      ├── README.md           # Guia de Implementação  
+      └── requirements.txt    # Dependências
 
 📄 Licença
 Distribuído sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
@@ -63,7 +67,8 @@ Desenvolvedor: Rafael
 
 Email: trello.athomoz@gmail.com
 
-LinkedIn/GitHub: [/rafael-dev](https://github.com/rafael-athomoz)
+GitHub: [/rafael-dev](https://github.com/rafael-athomoz)
+Linkedin-GitHub: [Caco0](https://github.com/Caco0)
 
 📚 Referências
 Repositórios similares: Talk-with-PDF, PDF Insight Extractor
