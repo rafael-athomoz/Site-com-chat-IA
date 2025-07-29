@@ -389,7 +389,7 @@ if st.session_state["contexto_pdf"]:  # Habilitação edital prompt
                         st.download_button(
                             label="⬇️ Baixar planilha Credenciamento do edital",
                             data=arquivo_excel,
-                            file_name=st.session_state["pdf_carregado_nome"].replace(".pdf", "_credenciamento.xlsx"),
+                            file_name=st.session_state["pdf_carregado_nome"].replace(".pdf", "_habilitação.xlsx"),
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         )
                     else:

@@ -99,7 +99,7 @@ def gerar_excel_habilitacao(dados_para_excel):   # Habilitação do edital
                 habilitacao_convertido.append({
                     "Documento": chave,
                     "Exigência": exigencia,
-                    "Localização da Solicitação": localizacao
+                    "Localização da Informação": localizacao
                 })
 
             df_habilitacao = pd.DataFrame(habilitacao_convertido)
