@@ -46,7 +46,7 @@ def gerar_excel_credenciamento(dados_para_excel):   # Credenciamento do edital
     output = BytesIO()
     try:
         with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            # Processa documentos de Credenciamento ---------------------------------------------------
+            # Processa documentos de Credenciamento ----------------------------------------------
 
             credenciamento = dados_para_excel.get("Credenciamento do Edital", {})
             credenciamento_convertido = []
@@ -54,15 +54,18 @@ def gerar_excel_credenciamento(dados_para_excel):   # Credenciamento do edital
             # Percorre todos os campos do resumo e estrutura no novo formato
             for chave, valor in credenciamento.items():
                 if isinstance(valor, dict):
-                    obrigatoriedade = valor.get("obrigatoriedade do documento", "Não informado")
-                    localizacao_credenciamento = valor.get("Local da Informação", "Não informado")
+                    obrigatoriedade = valor.get("Obrigatoriedade do documento", "Não informado")
+                    localizacao = valor.get("Local da Informação", "Não informado")
+                    observacao = valor.get("Observação", "Não informado")
                 else:
                     obrigatoriedade = valor
-                    localizacao_credenciamento = "Não informado"
+                    localizacao = "Não informado"
+                    observacao = "Não informado"
                 credenciamento_convertido.append({
                     "Documento": chave,
-                    "Obrigatoriedade": obrigatoriedade,
-                    "Local da Informação": localizacao_credenciamento
+                    "Obrigatoriedade do documento": obrigatoriedade,
+                    "Local da Informação": localizacao,
+                    "Observação": observacao
                 })
 
             df_credenciamento = pd.DataFrame(credenciamento_convertido)
@@ -92,14 +95,17 @@ def gerar_excel_habilitacao(dados_para_excel):   # Habilitação do edital
             for chave, valor in habilitacao.items():
                 if isinstance(valor, dict):
                     exigencia = valor.get("Exigência", "não informado")
-                    localizacao = valor.get("Localização da Informação", "não informado")
+                    localizacao = valor.get("Localização da Informação", "não informado"),
+                    observacao = valor.get("Observação", "não informado")
                 else:
                     exigencia = valor
                     localizacao = "Não informado"
+                    observacao = "Não informado"
                 habilitacao_convertido.append({
                     "Documento": chave,
                     "Exigência": exigencia,
-                    "Localização da Informação": localizacao
+                    "Localização da Informação": localizacao,
+                    "Observação": observacao
                 })
 
             df_habilitacao = pd.DataFrame(habilitacao_convertido)

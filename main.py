@@ -177,35 +177,40 @@ if st.session_state["contexto_pdf"]:  # Credenciamento edital prompt
         with st.spinner("Analisando o edital e gerando a planilha..."):
             # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
             prompt_completo_credenciamento = f"""
-            Você é um especialista em leitura técnica e detalhada de editais públicos de pregão.
-            Sua tarefa é extrair **todos dos documentos de Credenciamento** do edital fornecido,
-            organizando-as em um **objeto JSON complexo** com as seguintes chaves e estruturas exatas:
+            Você é um especialista em leitura técnica de editais públicos de pregão. Sua tarefa é identificar e extrair
+            informações sobre os documentos exigidos para credenciamento, mesmo que apresentados de formas variadas.
+            Para cada documento encontrado, forneça as seguintes informações:
+
+            -**Obrigatoriedade de apresentação**: Indique se o documento é "Obrigatório", "Opcional" ou "Não informado".
+            -**Localização da Informação**: Informe o item, cláusula ou seção onde o documento é mencionado.
+            -**Observações**: Quaisquer detalhes adicionais relevantes, como prazos de validade, requisitos
+            específicos ou condições especiais.
 
             "Credenciamento do Edital": {{
-                "Ato constitutivo, estatuto ou **Contrato Social** em vigor, devidamente registrado na Junta Comercial": {{
-                    "obrigatoriedade do documento": "É obrigatório",
-                    "Localização da informação do documento": "Item/Cláusula no edital",
-                    "Observações": "Observações sobre a procuração, se necessário"
+                "Contrato Social": {{
+                    "Obrigatoriedade do documento": "É obrigatório, opcional ou não informado",
+                    "Local da Informação": "Item/Cláusula no edital",
+                    "Observação": "Observações adicionais se houver"
                 }},
                 "Documento de Identidade do sócio RG e CPF": {{
-                    "obrigatoriedade do documento": "É obrigatório",
-                    "Localização da informação do documento": "Item/Cláusula no edital",
-                    "Observações": "Observações sobre a procuração, se necessário"
+                    "Obrigatoriedade do documento": "É obrigatório, opcional ou não informado",
+                    "Local da Informação": "Item/Cláusula no edital",
+                    "Observação": "Observações adicionais se houver"
                 }},
                 "Exigência de certidão simplificada da JUCESP (ou da junta comercial de qualquer estado)": {{
-                    "obrigatoriedade do documento": "É obrigatório",
-                    "Localização da informação do documento": "Item/Cláusula no edital",
-                    "Observações": "Observações sobre a procuração, se necessário"
+                    "Obrigatoriedade do documento": "É obrigatório, opcional ou não informado",
+                    "Local da Informação": "Item/Cláusula no edital",
+                    "Observação": "Observações adicionais se houver"
                 }},
                 "Documento de Optante pelo Simples Nacional": {{
-                    "obrigatoriedade do documento": "É obrigatório",
-                    "Localização da informação do documento": "Item/Cláusula no edital",
-                    "Observações": "Observações sobre a procuração, se necessário"
+                    "Obrigatoriedade do documento": "É obrigatório, opcional ou não informado",
+                    "Local da Informação": "Item/Cláusula no edital",
+                    "Observação": "Observações adicionais se houver"
                 }},
                 "Procuração de Representante Legal": {{
-                    "obrigatoriedade do documento": "É obrigatório",
-                    "Localização da informação do documento": "Item/Cláusula no edital",
-                    "Observações": "Observações sobre a procuração, se necessário"
+                    "Obrigatoriedade do documento": "É obrigatório, opcional ou não informado",
+                    "Local da Informação": "Item/Cláusula no edital",
+                    "Observação": "Observações adicionais se houver"
                 }}
             }}
 
@@ -244,9 +249,9 @@ if st.session_state["contexto_pdf"]:  # Credenciamento edital prompt
                     if arquivo_excel:
                         st.success("📥 Planilha completa do edital gerada com sucesso!")
                         st.download_button(
-                            label="⬇️ Baixar planilha Habilitação do edital",
+                            label="⬇️ Baixar planilha Credenciamento do edital",
                             data=arquivo_excel,
-                            file_name=st.session_state["pdf_carregado_nome"].replace(".pdf", "_habilitacao.xlsx"),
+                            file_name=st.session_state["pdf_carregado_nome"].replace(".pdf", "_credenciamento.xlsx"),
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         )
                     else:
@@ -282,75 +287,93 @@ if st.session_state["contexto_pdf"]:  # Habilitação edital prompt
             "Habilitação do Edital": {{
                 "Contrato Social": {{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Documento de Identidade do proprietário RG e CPF": {{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Cartão CNPJ": {{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "CADESP – Consulta Cadastral ICMS “Publica": {{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "CADESP – Consulta Cadastral ICMS Interna ou Adicional": {{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Certidão Negativa de Débitos do FGTS":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Certidão Negativa de Débitos da Dívida Ativa Estadual CND Estadual":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Certidão de Falência/Recuperação Judicial/Extrajudicial":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Certidão Negativa de Débitos Trabalhistas CNDT":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Certidão Conjunta de Débitos Relativos a Tributos Federais e à Dívida Ativa da União CND Federal":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Certidão Negativa de Débitos Imobiliários":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Alvará de Funcionamento":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Certidão de Débitos Tributários não inscritos na Dívida Ativa do Estado de SP":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Termo de Abertura e Encerramento do Livro Diário":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Balanço Patrimonial do último exercício social":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "DRE – Demonstrativo de Resultado do Exercício":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Comprovação da Situação Financeira":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Certidão Negativa de Débitos junto ao Tribunal de Contas TCE/TCU":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
-                    "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
             }}
 
