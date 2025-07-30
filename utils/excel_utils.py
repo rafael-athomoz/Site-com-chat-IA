@@ -54,18 +54,18 @@ def gerar_excel_credenciamento(dados_para_excel):   # Credenciamento do edital
             # Percorre todos os campos do resumo e estrutura no novo formato
             for chave, valor in credenciamento.items():
                 if isinstance(valor, dict):
-                    obrigatoriedade = valor.get("Obrigatoriedade do documento", "Não informado")
-                    localizacao = valor.get("Local da Informação", "Não informado")
-                    observacao = valor.get("Observação", "Não informado")
+                    cred_exigencia = valor.get("Exigência", "Não informado")
+                    cred_localizacao = valor.get("Localização da Informação", "Não informado")
+                    cred_observacoes = valor.get("Observação", "Não informado")
                 else:
-                    obrigatoriedade = valor
-                    localizacao = "Não informado"
-                    observacao = "Não informado"
+                    cred_exigencia = valor
+                    cred_localizacao = "Não informado"
+                    cred_observacoes = "Não informado"
                 credenciamento_convertido.append({
                     "Documento": chave,
-                    "Obrigatoriedade do documento": obrigatoriedade,
-                    "Local da Informação": localizacao,
-                    "Observação": observacao
+                    "Exigência": cred_exigencia,
+                    "Localização da Informação": cred_localizacao,
+                    "Observação": cred_observacoes
                 })
 
             df_credenciamento = pd.DataFrame(credenciamento_convertido)

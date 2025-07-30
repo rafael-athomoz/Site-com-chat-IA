@@ -181,36 +181,36 @@ if st.session_state["contexto_pdf"]:  # Credenciamento edital prompt
             informações sobre os documentos exigidos para credenciamento, mesmo que apresentados de formas variadas.
             Para cada documento encontrado, forneça as seguintes informações:
 
-            -**Obrigatoriedade de apresentação**: Indique se o documento é "Obrigatório", "Opcional" ou "Não informado".
+            -**Exigência**: Indique se o documento é "Obrigatório", "Opcional" ou "Não informado".
             -**Localização da Informação**: Informe o item, cláusula ou seção onde o documento é mencionado.
             -**Observações**: Quaisquer detalhes adicionais relevantes, como prazos de validade, requisitos
             específicos ou condições especiais.
 
             "Credenciamento do Edital": {{
                 "Contrato Social": {{
-                    "Obrigatoriedade do documento": "É obrigatório, opcional ou não informado",
-                    "Local da Informação": "Item/Cláusula no edital",
-                    "Observação": "Observações adicionais se houver"
+                    "Exigência": "É obrigatório, opcional ou não informado",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Documento de Identidade do sócio RG e CPF": {{
-                    "Obrigatoriedade do documento": "É obrigatório, opcional ou não informado",
-                    "Local da Informação": "Item/Cláusula no edital",
-                    "Observação": "Observações adicionais se houver"
+                    "Exigência": "É obrigatório, opcional ou não informado",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
-                "Exigência de certidão simplificada da JUCESP (ou da junta comercial de qualquer estado)": {{
-                    "Obrigatoriedade do documento": "É obrigatório, opcional ou não informado",
-                    "Local da Informação": "Item/Cláusula no edital",
-                    "Observação": "Observações adicionais se houver"
+                "Certidão simplificada da JUCESP (ou da junta comercial de qualquer estado)": {{
+                    "Exigência": "É obrigatório, opcional ou não informado",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Documento de Optante pelo Simples Nacional": {{
-                    "Obrigatoriedade do documento": "É obrigatório, opcional ou não informado",
-                    "Local da Informação": "Item/Cláusula no edital",
-                    "Observação": "Observações adicionais se houver"
+                    "Exigência": "É obrigatório, opcional ou não informado",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }},
                 "Procuração de Representante Legal": {{
-                    "Obrigatoriedade do documento": "É obrigatório, opcional ou não informado",
-                    "Local da Informação": "Item/Cláusula no edital",
-                    "Observação": "Observações adicionais se houver"
+                    "Exigência": "É obrigatório, opcional ou não informado",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
                 }}
             }}
 
@@ -229,7 +229,7 @@ if st.session_state["contexto_pdf"]:  # Credenciamento edital prompt
 
             **Conteúdo do Edital:**
             \"\"\"
-            {st.session_state["contexto_pdf"][:20000]}
+            {st.session_state["contexto_pdf"][:30000]}
             \"\"\"
             """
 
@@ -242,7 +242,14 @@ if st.session_state["contexto_pdf"]:  # Credenciamento edital prompt
                     messages=[{"role": "user", "content": prompt_completo_credenciamento}]
                 )
                 resposta_json_str = resposta.choices[0].message.content.strip()
+                # --- TESTE: visualizar a saída JSON no terminal ---
+                # print("\n===== JSON RETORNADO PELA IA (RAW) =====")
+                # print(resposta_json_str)
+                # print("========================================\n")
                 dados_completos = json.loads(resposta_json_str)
+                # print("\n===== JSON CARREGADO (DICT PYTHON) =====")
+                # print(json.dumps(dados_completos, indent=4, ensure_ascii=False))
+                # print("========================================\n")
 
                 if dados_completos:
                     arquivo_excel = gerar_excel_credenciamento(dados_completos)
@@ -446,9 +453,10 @@ if mensagem_usuario:
         {
             "role": "system",
             "content": (
-                "Você é um assistente especializado em análise de editais públicos. "
+                "Você é um assistente especializado em análise de editais públicos."
                 "Sua função é responder a perguntas sobre o edital fornecido, "
-                "extraindo informações relevantes do texto. Mantenha as respostas concisas e diretas."
+                "extraindo informações relevantes do texto. Mantenha as respostas" 
+                "concisas e diretas."
             )
         }
     ]
@@ -473,6 +481,10 @@ if mensagem_usuario:
                 st.write(resposta_ia)
         except Exception as e:
             st.error(f"Erro ao se comunicar com a IA: {e}")
-            st.session_state["lista_mensagens"].append({"role": "assistant", "content": "Desculpe, não consegui processar sua solicitação no momento."})
+            st.session_state["lista_mensagens"].append({
+                "role": "assistant", 
+                "content": "Desculpe, não consegui processar sua solicitação no momento."
+                })
+
             with st.chat_message("assistant"):
                 st.write("Desculpe, não consegui processar sua solicitação no momento.")
