@@ -51,6 +51,9 @@ def gerar_excel_credenciamento(dados_para_excel):   # Credenciamento do edital
             credenciamento = dados_para_excel.get("Credenciamento do Edital", {})
             credenciamento_convertido = []
 
+            # Extrair a seção de "Outros Documentos"
+            outros_documentos = credenciamento.pop("Outros Documentos de Credenciamento", {})
+
             # Percorre todos os campos do resumo e estrutura no novo formato
             for chave, valor in credenciamento.items():
                 if isinstance(valor, dict):
@@ -58,6 +61,24 @@ def gerar_excel_credenciamento(dados_para_excel):   # Credenciamento do edital
                     cred_localizacao = valor.get("Localização da Informação", "Não informado")
                     cred_observacoes = valor.get("Observação", "Não informado")
                 else:
+                    cred_exigencia = valor
+                    cred_localizacao = "Não informado"
+                    cred_observacoes = "Não informado"
+                credenciamento_convertido.append({
+                    "Documento": chave,
+                    "Exigência": cred_exigencia,
+                    "Localização da Informação": cred_localizacao,
+                    "Observação": cred_observacoes
+                })
+
+            # Percorre os documentos extras identificados pela IA
+            for chave, valor in outros_documentos.items():
+                if isinstance(valor, dict):
+                    cred_exigencia = valor.get("Exigência", "Não informado")
+                    cred_localizacao = valor.get("Localização da Informação", "Não informado")
+                    cred_observacoes = valor.get("Observação", "Não informado")
+                else:
+                    # Lidar com casos onde a IA pode não ter retornado um dicionário
                     cred_exigencia = valor
                     cred_localizacao = "Não informado"
                     cred_observacoes = "Não informado"
@@ -110,6 +131,48 @@ def gerar_excel_habilitacao(dados_para_excel):   # Habilitação do edital
 
             df_habilitacao = pd.DataFrame(habilitacao_convertido)
             df_habilitacao.to_excel(writer, sheet_name="Habilitação do Edital", index=False)
+
+        output.seek(0)
+        return output
+
+    except Exception as e:
+        st.error(f"Erro ao gerar o arquivo Excel: {e}")
+        return None
+
+
+def gerar_excel_extras(dados_para_excel):   # Habilitação do edital
+    """Gera um arquivo Excel de documentos Extras do Edital."""
+    if not dados_para_excel:
+        return None
+    output = BytesIO()
+    try:
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+            # Processa documentos de habilitação --------------------------------------------
+
+            extra = dados_para_excel.get("Documentos extras", {})
+            extra_convertido = []
+
+            # Percorre todos os campos do resumo e estrutura no novo formato
+            for chave, valor in extra.items():
+                if isinstance(valor, dict):
+                    extra_nome = valor.get("Nome", "não informado")
+                    extra_localizacao = valor.get("Localização da Informação", "não informado"),
+                    extra_observacao = valor.get("Observação", "não informado")
+                else:
+                    extra_nome = valor
+                    extra_localizacao = "Não informado"
+                    extra_observacao = "Não informado"
+                extra_convertido.append({
+                    "Documento": chave,
+                    "Nome": extra_nome,
+                    "Localização da Informação": extra_localizacao,
+                    "Observação": extra_observacao
+                })
+
+            df_extra = pd.DataFrame(extra_convertido)
+            df_extra.to_excel(writer, sheet_name="Documentos extras", index=False)
+            # garante o fechamento do wrinter
+            writer.close()  
 
         output.seek(0)
         return output

@@ -11,6 +11,7 @@ from utils.pdf_utils import extrair_texto_pdf
 from utils.excel_utils import gerar_excel_resumo
 from utils.excel_utils import gerar_excel_habilitacao
 from utils.excel_utils import gerar_excel_credenciamento
+from utils.excel_utils import gerar_excel_extras
 
 
 # Carrega variáveis de ambiente
@@ -214,12 +215,13 @@ if st.session_state["contexto_pdf"]:  # Credenciamento edital prompt
                 }}
             }}
 
+            
             **Instruções Cruciais:**
-            1.  **Analise o arquivo carregado com foco na secção Credenciamento com extrema atenção**
+            1.  **Analise o arquivo carregado com foco na secção ou trecho de Credenciamento com extrema atenção**
                 para não perder nenhum detalhe.
             2.  **Preencha TODOS os campos** no objeto "Credenciamento do Edital". Se a informação não for encontrada,
                 indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
-            3.  Para as listas de documentos (Credenciamento) , inclua **TODOS os itens
+            3.  Para as listas de documentos (Credenciamento do Edital) , inclua **TODOS os itens
                 encontrados no edital**, mesmo que pareçam óbvios ou genéricos.
             4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação do documento"
                 (Item/Cláusula) e quaisquer "Observações" pertinentes (prazos de emissão, requisitos de
@@ -281,28 +283,31 @@ if st.session_state["contexto_pdf"]:  # Habilitação edital prompt
             # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
             prompt_completo_habilitacao = f"""
             Você é um especialista em leitura técnica de editais públicos de pregão. Sua tarefa é identificar e extrair
-            informações sobre os documentos exigidos para habilitação, mesmo que apresentados de formas variadas.
+            da **Seção ou Fase de Habilitação** informações sobre os documentos exigidos para habilitação, mesmo que
+            apresentados de formas variadas.
             Para cada documento encontrado, forneça as seguintes informações:
 
             - **Exigência de apresentação**: Indique se o documento é "Obrigatório", "Opcional" ou "Não informado".
             - **Localização da Informação**: Informe o item, cláusula ou seção onde o documento é mencionado.
             - **Observações**: Quaisquer detalhes adicionais relevantes, como prazos de validade, requisitos
             específicos ou condições especiais.
+            - **Outros Documentos Identificados**: Indique qualquer documento adicional que esteja na seção mas 
+            não tenha sido solicitado.
 
             Estruture a resposta em formato JSON com a seguinte estrutura:
 
             "Habilitação do Edital": {{
-                "Contrato Social": {{
+                "**Contrato Social**": {{
                     "Exigência": "É obrigatório, opcional ou não informado",
                     "Localização da Informação": "Item/Cláusula/Título no edital",
                     "Observação": "Observações relevantes"
                 }},
-                "Documento de Identidade do proprietário RG e CPF": {{
+                "Documento de Cédula de Identidade dos Sócios ou  Proprietário RG e CPF": {{
                     "Exigência": "É obrigatório, opcional ou não informado",
                     "Localização da Informação": "Item/Cláusula/Título no edital",
                     "Observação": "Observações relevantes"
                 }},
-                "Cartão CNPJ": {{
+                "Prova de inscrição no Cadastro Nacional de Pessoas Jurídicas **Cartão CNPJ**": {{
                     "Exigência": "É obrigatório, opcional ou não informado",
                     "Localização da Informação": "Item/Cláusula/Título no edital",
                     "Observação": "Observações relevantes"
@@ -322,12 +327,12 @@ if st.session_state["contexto_pdf"]:  # Habilitação edital prompt
                     "Localização da Informação": "Item/Cláusula/Título no edital",
                     "Observação": "Observações relevantes"
                 }},
-                "Certidão Negativa de Débitos da Dívida Ativa Estadual CND Estadual":{{
+                "Certidão Negativa de Débitos da **Dívida Ativa Estadual** CND Estadual":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
                     "Localização da Informação": "Item/Cláusula/Título no edital",
                     "Observação": "Observações relevantes"
                 }},
-                "Certidão de Falência/Recuperação Judicial/Extrajudicial":{{
+                "Certidão Negativa de Falência/Recuperação Judicial/Extrajudicial":{{
                     "Exigência": "É obrigatório, opcional ou não informado",
                     "Localização da Informação": "Item/Cláusula/Título no edital",
                     "Observação": "Observações relevantes"
@@ -381,23 +386,25 @@ if st.session_state["contexto_pdf"]:  # Habilitação edital prompt
                     "Exigência": "É obrigatório, opcional ou não informado",
                     "Localização da Informação": "Item/Cláusula/Título no edital",
                     "Observação": "Observações relevantes"
-                }},
+                }}
             }}
 
             **Instruções Cruciais:**
-            1.  **Analise todo o edital com extrema atenção** para não perder nenhum detalhe.
+            1.  **Analise o arquivo carregado com foco na secção ou trecho de Habilitação com extrema atenção**
+                para não perder nenhum detalhe.
             2.  **Preencha TODOS os campos** no objeto "Habilitação do Edital". Se a informação não for encontrada,
                 indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
-            3.  Para as listas de documentos (Habilitação), inclua **TODOS os itens
+            3.  Para as listas de documentos (Habilitação do Edital) , inclua **TODOS os itens
                 encontrados no edital**, mesmo que pareçam óbvios ou genéricos.
-            4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação" (Item/Cláusula/Título) e
-                quaisquer "Observações" pertinentes (prazos de emissão, requisitos de autenticação, etc.).
-            6.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas
+            4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação do documento"
+                (Item/Cláusula) e quaisquer "Observações" pertinentes (prazos de emissão, requisitos de
+                autenticação, etc.).
+            5.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas
                 estejam vazias se nenhuma informação for encontrada.
 
             **Conteúdo do Edital:**
             \"\"\"
-            {st.session_state["contexto_pdf"][:30000]}
+            {st.session_state["contexto_pdf"][:40000]}
             \"\"\"
             """
 
@@ -417,9 +424,139 @@ if st.session_state["contexto_pdf"]:  # Habilitação edital prompt
                     if arquivo_excel:
                         st.success("📥 Planilha completa do edital gerada com sucesso!")
                         st.download_button(
-                            label="⬇️ Baixar planilha Credenciamento do edital",
+                            label="⬇️ Baixar planilha Habilitação do edital",
                             data=arquivo_excel,
                             file_name=st.session_state["pdf_carregado_nome"].replace(".pdf", "_habilitação.xlsx"),
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+                    else:
+                        st.warning("Nenhuma informação foi gerada ou houve um erro na criação do Excel.")
+                else:
+                    st.warning("A IA não retornou um JSON de análise completo. Verifique o prompt ou o edital.")
+                    st.code(resposta_json_str)
+            except json.JSONDecodeError as e:
+                st.error(f"Erro ao decodificar JSON da IA. O formato de saída pode estar incorreto: {e}")
+                st.code(resposta_json_str)
+            except Exception as e:
+                st.error(f"Ocorreu um erro ao processar a solicitação: {e}")
+
+    st.markdown("---")
+
+
+if st.session_state["contexto_pdf"]:  # Documentos extras prompt
+    if st.button("📊 Analisar PDF e gerar planilha de Documentos Extras"):
+        with st.spinner("Analisando o edital e gerando a planilha..."):
+            # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
+            prompt_completo_extra = f"""
+            Você é um especialista em análise de editais de pregão. Sua tarefa é ler o edital a seguir e identificar
+            **todos os documentos de habilitação solicitados que não constam na lista abaixo**. O objetivo é
+            garantir que nenhum requisito seja perdido.
+
+            **Lista de Documentos Conhecidos (Não Inclusos na Análise):**
+            - Contrato Social
+            - Documento de identificação do sócio (RG ou CNH)
+            - Certidão Simplificada JUCESP
+            - Documentação de Optante do Simples Nacional
+            - Procuração do Representante Legal
+            - Cartão CNPJ
+            - CADESP – Consulta Cadastral ICMS (Consulta Pública)
+            - CADESP – Consulta Cadastral ICMS (Consulta Interna ou Adicional)
+            - Certidão Negativa de Débitos do FGTS
+            - Certidão Negativa de Débitos da Dívida Ativa Estadual CND Estadual
+            - Certidão de Falência, Recuperação Judicial ou Extrajudicial
+            - Certidão Negativa de Débitos Trabalhistas (CNDT)
+            - Certidão Conjunta de Débitos Relativos a Tributos Federais e à Dívida Ativa da União (CND Federal)
+            - Certidão Negativa de Débitos Imobiliários
+            - Certidão Negativa de Débitos Mobiliários
+            - Alvará de Funcionamento
+            - Certidão de Débitos Tributários não inscritos na Dívida Ativa do Estado de SP
+            - Termo de Abertura e Encerramento do Livro Diário
+            - Balanço Patrimonial do último exercício social
+            - DRE – Demonstrativo de Resultado do Exercício
+            - Comprovação da Situação Financeira
+            - Certidão Negativa de Débitos junto ao Tribunal de Contas (TCE/TCU)
+
+            "Documentos extras": {{
+                "Doc 1": {{
+                    "Nome": "Nome, modelo ou tipo do documento",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
+                }},
+                "Doc 2": {{
+                    "Nome": "Nome, modelo ou tipo do documento",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
+                }},
+                "Doc 3": {{
+                    "Nome": "Nome, modelo ou tipo do documento",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
+                }},
+                "Doc 4": {{
+                    "Nome": "Nome, modelo ou tipo do documento",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
+                }},
+                "Doc 5": {{
+                    "Nome": "Nome, modelo ou tipo do documento",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
+                }},
+                "Doc 6": {{
+                    "Nome": "Nome, modelo ou tipo do documento",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
+                }},
+                "Doc 7": {{
+                    "Nome": "Nome, modelo ou tipo do documento",
+                    "Localização da Informação": "Item/Cláusula/Título no edital",
+                    "Observação": "Observações relevantes"
+                }}
+            }}
+            **Instruções para a Resposta:**
+            1.  Leia o edital completo com atenção para garantir que nenhum documento seja omitido.
+            2.  Para cada documento encontrado que não está na lista acima, extraia as seguintes informações:
+                -   **Nome do Documento**: O nome exato ou uma descrição clara do documento (ex: "Declaração
+                de Visita Técnica").
+                -   **Localização no Edital**: A seção, cláusula ou item onde o documento é mencionado
+                (ex: "Item 7.2.3").
+                -   **Observações Relevantes**: Qualquer detalhe importante, como prazos, formatos, requisitos
+                específicos ou condições de apresentação (ex: "válido por 60 dias" ou "modelo disponível no Anexo III").
+            3.  Formate a resposta como um array de objetos JSON, onde cada objeto representa um documento extra. Se
+            nenhum documento adicional for encontrado, retorne um array vazio.
+
+            **Conteúdo do Edital:**
+            \"\"\"
+            {st.session_state["contexto_pdf"][:30000]}
+            \"\"\"
+            """
+
+            # --- FIM DO NOVO PROMPT ---
+
+            try:
+                resposta = client.chat.completions.create(
+                    model="gpt-4o",  # Usar o modelo mais capaz para extração detalhada
+                    response_format={"type": "json_object"},  # Garantir que a saída seja JSON
+                    messages=[{"role": "user", "content": prompt_completo_extra}]
+                )
+                resposta_json_str = resposta.choices[0].message.content.strip()
+                # --- TESTE: visualizar a saída JSON no terminal ---
+                print("\n===== JSON RETORNADO PELA IA (RAW) =====")
+                print(resposta_json_str)
+                print("========================================\n")
+                dados_completos = json.loads(resposta_json_str)
+                print("\n===== JSON CARREGADO (DICT PYTHON) =====")
+                print(json.dumps(dados_completos, indent=4, ensure_ascii=False))
+                print("========================================\n")
+
+                if dados_completos:
+                    arquivo_excel = gerar_excel_extras(dados_completos)
+                    if arquivo_excel:
+                        st.success("📥 Planilha completa do edital gerada com sucesso!")
+                        st.download_button(
+                            label="⬇️ Baixar planilha Documentos Extras",
+                            data=arquivo_excel,
+                            file_name=st.session_state["pdf_carregado_nome"].replace(".pdf", "_extras.xlsx"),
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         )
                     else:
@@ -464,7 +601,7 @@ if mensagem_usuario:
     if st.session_state["contexto_pdf"]:
         mensagens_para_ia.append({
             "role": "system",
-            "content": f"Conteúdo do edital para consulta:\n{st.session_state['contexto_pdf'][:5000]}"
+            "content": f"Conteúdo do edital para consulta:\n{st.session_state['contexto_pdf'][:40000]}"
         })
     mensagens_para_ia.extend(st.session_state["lista_mensagens"])
 
