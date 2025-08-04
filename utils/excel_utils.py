@@ -1,3 +1,40 @@
+"""
+Módulo para geração de arquivos Excel a partir da análise de editais públicos.
+
+Este módulo contém funções que processam dados estruturados extraídos de editais
+de pregão e geram arquivos Excel para facilitar a consulta e o gerenciamento
+das informações.
+
+Funções:
+---------
+- gerar_excel_resumo(dados_para_excel):
+    Gera um arquivo Excel com o resumo do edital, incluindo solicitações,
+    descrições e localização das informações.
+
+- gerar_excel_credenciamento(dados_para_excel):
+    Gera um arquivo Excel com os documentos exigidos para credenciamento
+    no edital, incluindo exigências, localizações, observações e outros
+    documentos complementares identificados pela IA.
+
+Dependências:
+--------------
+- pandas: Para manipulação e exportação dos dados em formato tabular.
+- io.BytesIO: Para criação do arquivo em memória, sem salvar localmente.
+- streamlit: Para exibição de mensagens de erro na interface do aplicativo.
+
+Uso:
+-----
+Essas funções são utilizadas dentro de um aplicativo Streamlit responsável por
+ler editais em PDF, extrair informações via IA e permitir o download de planilhas
+Excel contendo os dados processados.
+
+Exemplo:
+---------
+dados_processados = {...}
+arquivo_excel = gerar_excel_resumo(dados_processados)
+if arquivo_excel:
+    st.download_button("Baixar Excel", data=arquivo_excel, file_name="Resumo.xlsx")
+"""
 from io import BytesIO
 
 import pandas as pd

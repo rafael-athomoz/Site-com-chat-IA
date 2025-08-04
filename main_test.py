@@ -14,7 +14,9 @@ api_key = os.getenv("OPENAI_API_KEY")
 print("Chave da API da OpenAI carregada com sucesso.", api_key)  # Para depuração, remova em produção
 
 if not api_key:
-    st.error("Erro: A chave da API da OpenAI não foi encontrada. Certifique-se de que OPENAI_API_KEY está definida no seu arquivo .env.")
+    st.error("""
+            Erro: A chave da API da OpenAI não foi encontrada. Certifique-se de que
+            OPENAI_API_KEY está definida no seu arquivo .env.""")
     st.stop()
 
 client = OpenAI(api_key=api_key)
@@ -34,7 +36,8 @@ def extrair_texto_pdf(uploaded_file):
         return None
 
 
-def gerar_excel_resumo(dados_para_excel):   
+def gerar_excel_resumo(dados_para_excel):
+
     """Gera um arquivo Excel Resumo do edital."""
     if not dados_para_excel:
         return None
@@ -60,7 +63,7 @@ def gerar_excel_resumo(dados_para_excel):
                 })
             df_resumo = pd.DataFrame(resumo_convertido)
             df_resumo.to_excel(writer, sheet_name="Resumo do Edital", index=False)
-            
+
         output.seek(0)
         return output
 
@@ -69,7 +72,7 @@ def gerar_excel_resumo(dados_para_excel):
         return None
 
 
-def gerar_excel_habilitacao(dados_para_excel):   
+def gerar_excel_habilitacao(dados_para_excel):
     """Gera um arquivo Excel de Habilitação do Edital."""
     if not dados_para_excel:
         return None
@@ -77,7 +80,7 @@ def gerar_excel_habilitacao(dados_para_excel):
     try:
         with pd.ExcelWriter(output, engine="openpyxl") as writer:
             # Processa documentos de habilitação ------------------------------------------------------------
-            
+
             habilitacao = dados_para_excel.get("Habilitação do Edital", {})
             habilitacao_convertido = []
 
@@ -97,7 +100,7 @@ def gerar_excel_habilitacao(dados_para_excel):
 
             df_habilitacao = pd.DataFrame(habilitacao_convertido)
             df_habilitacao.to_excel(writer, sheet_name="Habilitação do Edital", index=False)
-            
+
         output.seek(0)
         return output
 
@@ -133,7 +136,7 @@ if st.session_state["contexto_pdf"]:  # resumo edital
     if st.button("📊 Analisar PDF e gerar com Resumo do edital"):
         with st.spinner("Analisando o edital e gerando a planilha..."):
             # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
-            prompt_completo_resumo = f"""
+            PROMPT_COMPLETO_RESUMO = f"""
             Você é um especialista em leitura técnica e detalhada de editais públicos de pregão.
             Sua tarefa é extrair **todas as informações essenciais e documentos exigidos** do edital fornecido, 
             organizando-as em um **objeto JSON complexo** com as seguintes chaves e estruturas exatas:
@@ -202,11 +205,16 @@ if st.session_state["contexto_pdf"]:  # resumo edital
             }},
             **Instruções Cruciais:**
             1.  **Analise todo o edital com extrema atenção** para não perder nenhum detalhe.
-            2.  **Preencha TODOS os campos** no objeto "Resumo do Edital". Se a informação não for encontrada, indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
-            3.  Para as listas de documentos (Habilitação, Credenciamento) e Garantias, inclua **TODOS os itens encontrados no edital**, mesmo que pareçam óbvios ou genéricos.
-            4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação" (Item/Cláusula) e quaisquer "Observações" pertinentes (prazos de emissão, requisitos de autenticação, etc.).
-            5.  **Não inclua URLs de coleta externa** (JUCESP, Receita Federal, etc.) na saída JSON. Sua tarefa é extrair *apenas* as informações do edital.
-            6.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas estejam vazias se nenhuma informação for encontrada.
+            2.  **Preencha TODOS os campos** no objeto "Resumo do Edital". Se a informação não for encontrada,
+            indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
+            3.  Para as listas de documentos (Habilitação, Credenciamento) e Garantias, inclua **TODOS os itens
+            encontrados no edital**, mesmo que pareçam óbvios ou genéricos.
+            4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação" (Item/Cláusula) e
+            quaisquer "Observações" pertinentes (prazos de emissão, requisitos de autenticação, etc.).
+            5.  **Não inclua URLs de coleta externa** (JUCESP, Receita Federal, etc.) na saída JSON. Sua tarefa é
+            extrair *apenas* as informações do edital.
+            6.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas
+            estejam vazias se nenhuma informação for encontrada.
 
             **Conteúdo do Edital:**
             \"\"\"
@@ -219,12 +227,12 @@ if st.session_state["contexto_pdf"]:  # resumo edital
             try:
                 resposta = client.chat.completions.create(
                     model="gpt-4o",  # Usar o modelo mais capaz para extração detalhada
-                    response_format={"type": "json_object"}, # Garantir que a saída seja JSON
-                    messages=[{"role": "user", "content": prompt_completo_resumo}]
-                )                
+                    response_format={"type": "json_object"},  # Garantir que a saída seja JSON
+                    messages=[{"role": "user", "content": PROMPT_COMPLETO_RESUMO}])
+
                 resposta_json_str = resposta.choices[0].message.content.strip()
                 dados_completos = json.loads(resposta_json_str)
-                
+
                 if dados_completos:
                     arquivo_excel = gerar_excel_resumo(dados_completos)
                     if arquivo_excel:
@@ -253,7 +261,7 @@ if st.session_state["contexto_pdf"]:  # habilitação edital
     if st.button("📊 Analisar PDF e gerar planilha de habilitação do edital"):
         with st.spinner("Analisando o edital e gerando a planilha..."):
             # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
-            prompt_completo_habilidatacao = f"""
+            PROMPT_COMPLETO_HABILITACAO = f"""
             Você é um especialista em leitura técnica e detalhada de editais públicos de pregão.
             Sua tarefa é extrair **todos dos documentos exigidos para participação** do edital fornecido, 
             organizando-as em um **objeto JSON complexo** com as seguintes chaves e estruturas exatas:
@@ -283,11 +291,16 @@ if st.session_state["contexto_pdf"]:  # habilitação edital
 
             **Instruções Cruciais:**
             1.  **Analise todo o edital com extrema atenção** para não perder nenhum detalhe.
-            2.  **Preencha TODOS os campos** no objeto "Resumo do Edital". Se a informação não for encontrada, indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
-            3.  Para as listas de documentos (Habilitação, Credenciamento) e Garantias, inclua **TODOS os itens encontrados no edital**, mesmo que pareçam óbvios ou genéricos.
-            4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação" (Item/Cláusula) e quaisquer "Observações" pertinentes (prazos de emissão, requisitos de autenticação, etc.).
-            5.  **Não inclua URLs de coleta externa** (JUCESP, Receita Federal, etc.) na saída JSON. Sua tarefa é extrair *apenas* as informações do edital.
-            6.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas estejam vazias se nenhuma informação for encontrada.
+            2.  **Preencha TODOS os campos** no objeto "Resumo do Edital". Se a informação não for encontrada,
+            indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
+            3.  Para as listas de documentos (Habilitação, Credenciamento) e Garantias, inclua **TODOS os itens
+            encontrados no edital**, mesmo que pareçam óbvios ou genéricos.
+            4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação" (Item/Cláusula) e
+            quaisquer "Observações" pertinentes (prazos de emissão, requisitos de autenticação, etc.).
+            5.  **Não inclua URLs de coleta externa** (JUCESP, Receita Federal, etc.) na saída JSON. Sua tarefa é
+            extrair *apenas* as informações do edital.
+            6.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas
+            estejam vazias se nenhuma informação for encontrada.
 
             **Conteúdo do Edital:**
             \"\"\"
@@ -301,7 +314,7 @@ if st.session_state["contexto_pdf"]:  # habilitação edital
                 resposta = client.chat.completions.create(
                     model="gpt-4o",  # Usar o modelo mais capaz para extração detalhada
                     response_format={"type": "json_object"},  # Garantir que a saída seja JSON
-                    messages=[{"role": "user", "content": prompt_completo_habilidatacao}]
+                    messages=[{"role": "user", "content": PROMPT_COMPLETO_HABILITACAO}]
                 )                
                 resposta_json_str = resposta.choices[0].message.content.strip()
                 dados_completos = json.loads(resposta_json_str)

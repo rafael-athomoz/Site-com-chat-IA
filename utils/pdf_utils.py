@@ -1,3 +1,24 @@
+"""
+Módulo para extração de texto a partir de arquivos PDF usando PyMuPDF (fitz).
+
+Funções:
+---------
+- extrair_texto_pdf(uploaded_file):
+    Lê um arquivo PDF enviado (via upload), extrai todo o texto de cada página
+    e retorna uma string única com o conteúdo completo.
+
+Dependências:
+--------------
+- fitz (PyMuPDF): Para abrir e processar PDFs.
+- streamlit (opcional): Para exibição de mensagens de erro.
+
+Uso:
+-----
+texto = extrair_texto_pdf(arquivo_upload)
+if texto:
+    print("Texto extraído com sucesso!")
+"""
+
 import streamlit as st
 import fitz
 
@@ -5,13 +26,17 @@ import fitz
 @st.cache_data
 def extrair_texto_pdf(uploaded_file):
     """
-    Extrai o texto de um arquivo PDF carregado via Streamlit.
+    Extrai texto de um arquivo PDF enviado pelo usuário.
 
     Parâmetros:
-    - uploaded_file: Arquivo PDF carregado via Streamlit (st.file_uploader)
+    ------------
+    uploaded_file : UploadedFile
+        Objeto de arquivo carregado (ex: st.file_uploader).
 
-    Retorno:
-    - String com todo o texto extraído do PDF.
+    Retorna:
+    ---------
+    str | None
+        Texto completo extraído do PDF ou None em caso de erro.
     """
     try:
         pdf_bytes = uploaded_file.read()

@@ -1,3 +1,49 @@
+"""
+Módulo para geração de arquivos Excel a partir da análise de editais públicos.
+
+Este módulo contém funções que processam dados estruturados extraídos de editais 
+de pregão e geram arquivos Excel para facilitar a consulta e o gerenciamento 
+das informações.
+
+Funções:
+---------
+- gerar_excel_resumo(dados_para_excel):
+    Gera um arquivo Excel com o resumo do edital, incluindo solicitações,
+    descrições e localização das informações.
+
+- gerar_excel_credenciamento(dados_para_excel):
+    Gera um arquivo Excel com os documentos exigidos para credenciamento
+    no edital, incluindo exigências, localizações, observações e outros
+    documentos complementares identificados pela IA.
+
+- gerar_excel_habilitacao(dados_para_excel):
+    Gera um arquivo Excel com os documentos exigidos para habilitação
+    no edital, incluindo exigências, localizações e observações.
+
+- gerar_excel_extras(dados_para_excel):
+    Gera um arquivo Excel com documentos adicionais não listados
+    explicitamente no edital, mas identificados na análise da IA.
+
+Dependências:
+--------------
+- pandas: Para manipulação e exportação dos dados em formato tabular.
+- io.BytesIO: Para criação do arquivo em memória, sem salvar localmente.
+- streamlit: Para exibição de mensagens de erro na interface do aplicativo.
+
+Uso:
+-----
+Essas funções são utilizadas dentro de um aplicativo Streamlit responsável por
+ler editais em PDF, extrair informações via IA e permitir o download de planilhas
+Excel contendo os dados processados.
+
+Exemplo:
+---------
+dados_processados = {...}
+arquivo_excel = gerar_excel_resumo(dados_processados)
+if arquivo_excel:
+    st.download_button("Baixar Excel", data=arquivo_excel, file_name="Resumo.xlsx")
+"""
+
 import os
 import json
 
@@ -29,7 +75,7 @@ client = OpenAI(api_key=api_key)
 st.image("assets/holy dragon logo.png", width=600)
 st.title("📑 Leitor de Edital 1.0")
 
-# SECTION UPLOAD PDF -----------------------------------------------------------------------------------------------
+# SECTION UPLOAD PDF ---------------------------------------------------------------
 arquivo_pdf = st.file_uploader("📤 Envie um PDF de edital para análise", type="pdf")
 
 if "lista_mensagens" not in st.session_state:
@@ -39,7 +85,7 @@ if "contexto_pdf" not in st.session_state:
 if "pdf_carregado_nome" not in st.session_state:
     st.session_state["pdf_carregado_nome"] = None
 
-# SECTION PDF PROCESSING --------------------------------------------------------------------------------------------
+# SECTION PDF PROCESSING ------------------------------------------------------------
 if arquivo_pdf and arquivo_pdf.name != st.session_state["pdf_carregado_nome"]:
     st.session_state["pdf_carregado_nome"] = arquivo_pdf.name
     with st.spinner("Extraindo texto do PDF..."):
@@ -51,12 +97,12 @@ if arquivo_pdf and arquivo_pdf.name != st.session_state["pdf_carregado_nome"]:
         else:
             st.session_state["contexto_pdf"] = ""
 
-# SECTION PROMPTS ------------------------------------------------------------------------------------------
+# SECTION PROMPTS ---------------------------------------------------------------------
 if st.session_state["contexto_pdf"]:  # resumo edital prompt
     if st.button("📊 Analisar PDF e gerar planilha com Resumo do edital"):
         with st.spinner("Analisando o edital e gerando a planilha..."):
             # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
-            prompt_completo_resumo = f"""
+            PROMPT_COMPLETO_RESUMO = f"""
             Você é um especialista em leitura técnica e detalhada de editais públicos de pregão.
             Sua tarefa é extrair **todas as informações essenciais e documentos exigidos** do edital fornecido,
             organizando-as em um **objeto JSON complexo** com as seguintes chaves e estruturas exatas:
@@ -144,7 +190,7 @@ if st.session_state["contexto_pdf"]:  # resumo edital prompt
                 resposta = client.chat.completions.create(
                     model="gpt-4o",  # Usar o modelo mais capaz para extração detalhada
                     response_format={"type": "json_object"},  # Garantir que a saída seja JSON
-                    messages=[{"role": "user", "content": prompt_completo_resumo}]
+                    messages=[{"role": "user", "content": PROMPT_COMPLETO_RESUMO}]
                 )
                 resposta_json_str = resposta.choices[0].message.content.strip()
                 dados_completos = json.loads(resposta_json_str)
@@ -177,7 +223,7 @@ if st.session_state["contexto_pdf"]:  # Credenciamento edital prompt
     if st.button("📊 Analisar PDF e gerar planilha de Credenciamento do edital"):
         with st.spinner("Analisando o edital e gerando a planilha..."):
             # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
-            prompt_completo_credenciamento = f"""
+            PROMPT_COMPLETO_CREDENCIAMENTO = f"""
             Você é um especialista em leitura técnica de editais públicos de pregão. Sua tarefa é identificar e extrair
             informações sobre os documentos exigidos para credenciamento, mesmo que apresentados de formas variadas.
             Para cada documento encontrado, forneça as seguintes informações:
@@ -215,7 +261,6 @@ if st.session_state["contexto_pdf"]:  # Credenciamento edital prompt
                 }}
             }}
 
-            
             **Instruções Cruciais:**
             1.  **Analise o arquivo carregado com foco na secção ou trecho de Credenciamento com extrema atenção**
                 para não perder nenhum detalhe.
@@ -241,7 +286,7 @@ if st.session_state["contexto_pdf"]:  # Credenciamento edital prompt
                 resposta = client.chat.completions.create(
                     model="gpt-4o",  # Usar o modelo mais capaz para extração detalhada
                     response_format={"type": "json_object"},  # Garantir que a saída seja JSON
-                    messages=[{"role": "user", "content": prompt_completo_credenciamento}]
+                    messages=[{"role": "user", "content": PROMPT_COMPLETO_CREDENCIAMENTO}]
                 )
                 resposta_json_str = resposta.choices[0].message.content.strip()
                 # --- TESTE: visualizar a saída JSON no terminal ---
@@ -281,7 +326,7 @@ if st.session_state["contexto_pdf"]:  # Habilitação edital prompt
     if st.button("📊 Analisar PDF e gerar planilha de Habilitação do edital"):
         with st.spinner("Analisando o edital e gerando a planilha..."):
             # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
-            prompt_completo_habilitacao = f"""
+            PROMPT_COMPLETO_HABILITACAO = f"""
             Você é um especialista em leitura técnica de editais públicos de pregão. Sua tarefa é identificar e extrair
             da **Seção ou Fase de Habilitação** informações sobre os documentos exigidos para habilitação, mesmo que
             apresentados de formas variadas.
@@ -291,7 +336,7 @@ if st.session_state["contexto_pdf"]:  # Habilitação edital prompt
             - **Localização da Informação**: Informe o item, cláusula ou seção onde o documento é mencionado.
             - **Observações**: Quaisquer detalhes adicionais relevantes, como prazos de validade, requisitos
             específicos ou condições especiais.
-            - **Outros Documentos Identificados**: Indique qualquer documento adicional que esteja na seção mas 
+            - **Outros Documentos Identificados**: Indique qualquer documento adicional que esteja na seção mas
             não tenha sido solicitado.
 
             Estruture a resposta em formato JSON com a seguinte estrutura:
@@ -414,7 +459,7 @@ if st.session_state["contexto_pdf"]:  # Habilitação edital prompt
                 resposta = client.chat.completions.create(
                     model="gpt-4o",  # Usar o modelo mais capaz para extração detalhada
                     response_format={"type": "json_object"},  # Garantir que a saída seja JSON
-                    messages=[{"role": "user", "content": prompt_completo_habilitacao}]
+                    messages=[{"role": "user", "content": PROMPT_COMPLETO_HABILITACAO}]
                 )
                 resposta_json_str = resposta.choices[0].message.content.strip()
                 dados_completos = json.loads(resposta_json_str)
@@ -447,7 +492,7 @@ if st.session_state["contexto_pdf"]:  # Documentos extras prompt
     if st.button("📊 Analisar PDF e gerar planilha de Documentos Extras"):
         with st.spinner("Analisando o edital e gerando a planilha..."):
             # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
-            prompt_completo_extra = f"""
+            PROMPT_COMPLETO_EXTRA = f"""
             Você é um especialista em análise de editais de pregão. Sua tarefa é ler o edital a seguir e identificar
             **todos os documentos de habilitação solicitados que não constam na lista abaixo**. O objetivo é
             garantir que nenhum requisito seja perdido.
@@ -538,7 +583,7 @@ if st.session_state["contexto_pdf"]:  # Documentos extras prompt
                 resposta = client.chat.completions.create(
                     model="gpt-4o",  # Usar o modelo mais capaz para extração detalhada
                     response_format={"type": "json_object"},  # Garantir que a saída seja JSON
-                    messages=[{"role": "user", "content": prompt_completo_extra}]
+                    messages=[{"role": "user", "content": PROMPT_COMPLETO_EXTRA}]
                 )
                 resposta_json_str = resposta.choices[0].message.content.strip()
                 # --- TESTE: visualizar a saída JSON no terminal ---
@@ -575,7 +620,7 @@ if st.session_state["contexto_pdf"]:  # Documentos extras prompt
 
 st.subheader("💬 Chat com IA sobre o edital")
 
-# SECTION_CHAT ----------------------------------------------------------------------------------------------
+# SECTION_CHAT --------------------------------------------------------------------------
 for historico_mensagem in st.session_state["lista_mensagens"]:
     with st.chat_message(historico_mensagem["role"]):
         st.write(historico_mensagem["content"])
@@ -593,7 +638,7 @@ if mensagem_usuario:
             "content": (
                 "Você é um assistente especializado em análise de editais públicos."
                 "Sua função é responder a perguntas sobre o edital fornecido, "
-                "extraindo informações relevantes do texto. Mantenha as respostas" 
+                "extraindo informações relevantes do texto. Mantenha as respostas"
                 "concisas e diretas."
             )
         }

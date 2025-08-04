@@ -15,6 +15,7 @@
     "pycache",
     "spreadsheetml",
     "usuario",
-    "venv"
+    "venv",
+    "wrinter"
   ]
 }
