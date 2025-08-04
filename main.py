@@ -475,6 +475,7 @@ if st.session_state["contexto_pdf"]:  # Documentos extras prompt
             - DRE – Demonstrativo de Resultado do Exercício
             - Comprovação da Situação Financeira
             - Certidão Negativa de Débitos junto ao Tribunal de Contas (TCE/TCU)
+            Retorne a resposta EXCLUSIVAMENTE no seguinte formato JSON:
 
             "Documentos extras": {{
                 "Doc 1": {{
@@ -522,8 +523,8 @@ if st.session_state["contexto_pdf"]:  # Documentos extras prompt
                 (ex: "Item 7.2.3").
                 -   **Observações Relevantes**: Qualquer detalhe importante, como prazos, formatos, requisitos
                 específicos ou condições de apresentação (ex: "válido por 60 dias" ou "modelo disponível no Anexo III").
-            3.  Formate a resposta como um array de objetos JSON, onde cada objeto representa um documento extra. Se
-            nenhum documento adicional for encontrado, retorne um array vazio.
+            3.  **A saída DEVE ser um JSON válido e completo**, onde cada objeto representa um documento extra. Se
+            nenhum documento adicional for encontrado, retorne um objeto vazio.
 
             **Conteúdo do Edital:**
             \"\"\"
@@ -541,13 +542,13 @@ if st.session_state["contexto_pdf"]:  # Documentos extras prompt
                 )
                 resposta_json_str = resposta.choices[0].message.content.strip()
                 # --- TESTE: visualizar a saída JSON no terminal ---
-                print("\n===== JSON RETORNADO PELA IA (RAW) =====")
-                print(resposta_json_str)
-                print("========================================\n")
+                # print("\n===== JSON RETORNADO PELA IA (RAW) =====")
+                # print(resposta_json_str)
+                # print("========================================\n")
                 dados_completos = json.loads(resposta_json_str)
-                print("\n===== JSON CARREGADO (DICT PYTHON) =====")
-                print(json.dumps(dados_completos, indent=4, ensure_ascii=False))
-                print("========================================\n")
+                # print("\n===== JSON CARREGADO (DICT PYTHON) =====")
+                # print(json.dumps(dados_completos, indent=4, ensure_ascii=False))
+                # print("========================================\n")
 
                 if dados_completos:
                     arquivo_excel = gerar_excel_extras(dados_completos)

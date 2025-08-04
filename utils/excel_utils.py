@@ -116,7 +116,7 @@ def gerar_excel_habilitacao(dados_para_excel):   # Habilitação do edital
             for chave, valor in habilitacao.items():
                 if isinstance(valor, dict):
                     exigencia = valor.get("Exigência", "não informado")
-                    localizacao = valor.get("Localização da Informação", "não informado"),
+                    localizacao = valor.get("Localização da Informação", "não informado")
                     observacao = valor.get("Observação", "não informado")
                 else:
                     exigencia = valor
@@ -147,7 +147,7 @@ def gerar_excel_extras(dados_para_excel):   # Habilitação do edital
     output = BytesIO()
     try:
         with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            # Processa documentos de habilitação --------------------------------------------
+            # Processa documentos de Extras --------------------------------------------
 
             extra = dados_para_excel.get("Documentos extras", {})
             extra_convertido = []
@@ -156,7 +156,7 @@ def gerar_excel_extras(dados_para_excel):   # Habilitação do edital
             for chave, valor in extra.items():
                 if isinstance(valor, dict):
                     extra_nome = valor.get("Nome", "não informado")
-                    extra_localizacao = valor.get("Localização da Informação", "não informado"),
+                    extra_localizacao = valor.get("Localização da Informação", "não informado")
                     extra_observacao = valor.get("Observação", "não informado")
                 else:
                     extra_nome = valor
@@ -172,7 +172,7 @@ def gerar_excel_extras(dados_para_excel):   # Habilitação do edital
             df_extra = pd.DataFrame(extra_convertido)
             df_extra.to_excel(writer, sheet_name="Documentos extras", index=False)
             # garante o fechamento do wrinter
-            writer.close()  
+            writer.close()
 
         output.seek(0)
         return output
