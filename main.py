@@ -59,6 +59,8 @@ import bcrypt
 # extrair_texto_pdf
 from utils.pdf_utils import extrair_texto_pdf
 from utils.admin_utils import add_user_page
+from credentials import USERS_HASHES
+
 
 # gerar_excel_resumo, gerar_excel_habilitacao, gerar_excel_credenciamento
 from utils.excel_utils import gerar_excel_resumo
@@ -66,18 +68,9 @@ from utils.excel_utils import gerar_excel_habilitacao
 from utils.excel_utils import gerar_excel_credenciamento
 from utils.excel_utils import gerar_excel_extras
 
-# senha_real = "minha_senha_segura"
-# hashed_senha = bcrypt.hashpw(senha_real.encode('utf-8'), bcrypt.gensalt())
-# print(hashed_senha.decode('utf-8'))
-
-USERS = {
-    "admin": "Loucura159",
-    "Usuario 1": "senha123",
-    "Usuario 2": "senha456"
-}
 # SECTION LOGIN ----------------------------------------
 if "logged_in" not in st.session_state:
-    st.session_state["logged-in"] = False
+    st.session_state["logged_in"] = False
 
 
 def mostra_login():
@@ -89,14 +82,19 @@ def mostra_login():
     password = st.text_input("senha", type="password")
 
     if st.button("Entrar"):
-        if username in USERS and USERS[username] == password:
-            st.session_state["logged_in"] = True
-            st.session_state["username"] = username
-            st.success(f"Bem Vindo, {username}!")
-            # recarrega a pagina para exibir o conteúdo principal do Streamlit
-            st.rerun()
+        if username in USERS_HASHES:
+            hashed_senha_armazenada = USERS_HASHES[username].encode('utf-8')
+            senha_digitada = password.encode('utf-8')
+
+            if bcrypt.checkpw(senha_digitada, hashed_senha_armazenada):
+                st.session_state["logged_in"] = True
+                st.session_state["username"] = username
+                st.success(f"Bem-vindo, {username}!")
+                st.rerun()
+            else:
+                st.error("Usuário ou senha incorretos.")
         else:
-            st.error("Usuários ou senha incorretos")
+            st.error("Usuário ou senha incorretos.")
 
 
 # Verifica se o usuário está logado
@@ -125,7 +123,7 @@ else:
             del st.session_state["username"]
             st.rerun()
 
-    if st.session_state["username"] == "admin":
+    if st.session_state["username"] == "Rafael Fortunato":
         if st.button("Gerenciar Usuários", key="admin_button"):
             # Alterna para Mostrar a pagina de administração 
             st.session_state["show_admin"] = not st.session_state.get("show_admin", False)
@@ -278,7 +276,6 @@ else:
 
         st.markdown("---")
 
-
     if st.session_state["contexto_pdf"]:  # Credenciamento edital prompt
         if st.button("📊 Analisar PDF e gerar planilha de Credenciamento do edital"):
             with st.spinner("Analisando o edital e gerando a planilha..."):
@@ -380,7 +377,6 @@ else:
                     st.error(f"Ocorreu um erro ao processar a solicitação: {e}")
 
         st.markdown("---")
-
 
     if st.session_state["contexto_pdf"]:  # Habilitação edital prompt
         if st.button("📊 Analisar PDF e gerar planilha de Habilitação do edital"):
@@ -546,7 +542,6 @@ else:
                     st.error(f"Ocorreu um erro ao processar a solicitação: {e}")
 
         st.markdown("---")
-
 
     if st.session_state["contexto_pdf"]:  # Documentos extras prompt
         if st.button("📊 Analisar PDF e gerar planilha de Documentos Extras"):

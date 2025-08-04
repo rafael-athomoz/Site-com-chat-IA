@@ -48,10 +48,10 @@ def add_user_page():
                             if line.strip().startswith("USERS_HASHES = {"):
                                 f.write(line)
                                 f.write(new_user_entry)
-                                
+
                             else:
                                 f.write(line)
-                    
+
                     st.success(f"Usuário '{new_username}' criado com sucesso!")
                     # Recarrega o app para que as novas credenciais sejam carregadas
                     st.rerun()
