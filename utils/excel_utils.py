@@ -208,8 +208,6 @@ def gerar_excel_extras(dados_para_excel):   # Habilitação do edital
 
             df_extra = pd.DataFrame(extra_convertido)
             df_extra.to_excel(writer, sheet_name="Documentos extras", index=False)
-            # garante o fechamento do wrinter
-            writer.close()
 
         output.seek(0)
         return output

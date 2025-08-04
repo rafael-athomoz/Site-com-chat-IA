@@ -386,6 +386,7 @@ if mensagem_usuario:
                 st.write(resposta_ia)
         except Exception as e:
             st.error(f"Erro ao se comunicar com a IA: {e}")
-            st.session_state["lista_mensagens"].append({"role": "assistant", "content": "Desculpe, não consegui processar sua solicitação no momento."})
+            st.session_state["lista_mensagens"].append(
+                {"role": "assistant", "content": "Desculpe, não consegui processar sua solicitação no momento."})
             with st.chat_message("assistant"):
                 st.write("Desculpe, não consegui processar sua solicitação no momento.")
