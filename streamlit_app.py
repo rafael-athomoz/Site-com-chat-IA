@@ -77,12 +77,11 @@ if arquivo_excel_resumo:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 """
-
-import os
+# import os
 import json
 
 import streamlit as st
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from openai import OpenAI
 import bcrypt
 
@@ -647,6 +646,46 @@ else:
                         "Observação": "Observações relevantes"
                     }},
                     "Doc 7": {{
+                        "Nome": "Nome, modelo ou tipo do documento",
+                        "Localização da Informação": "Item/Cláusula/Título no edital",
+                        "Observação": "Observações relevantes"
+                    }},
+                    "Doc 8": {{
+                        "Nome": "Nome, modelo ou tipo do documento",
+                        "Localização da Informação": "Item/Cláusula/Título no edital",
+                        "Observação": "Observações relevantes"
+                    }},
+                    "Doc 9": {{
+                        "Nome": "Nome, modelo ou tipo do documento",
+                        "Localização da Informação": "Item/Cláusula/Título no edital",
+                        "Observação": "Observações relevantes"
+                    }},
+                    "Doc 10": {{
+                        "Nome": "Nome, modelo ou tipo do documento",
+                        "Localização da Informação": "Item/Cláusula/Título no edital",
+                        "Observação": "Observações relevantes"
+                    }},
+                    "Doc 11": {{
+                        "Nome": "Nome, modelo ou tipo do documento",
+                        "Localização da Informação": "Item/Cláusula/Título no edital",
+                        "Observação": "Observações relevantes"
+                    }},
+                    "Doc 12": {{
+                        "Nome": "Nome, modelo ou tipo do documento",
+                        "Localização da Informação": "Item/Cláusula/Título no edital",
+                        "Observação": "Observações relevantes"
+                    }},
+                    "Doc 13": {{
+                        "Nome": "Nome, modelo ou tipo do documento",
+                        "Localização da Informação": "Item/Cláusula/Título no edital",
+                        "Observação": "Observações relevantes"
+                    }},
+                    "Doc 14": {{
+                        "Nome": "Nome, modelo ou tipo do documento",
+                        "Localização da Informação": "Item/Cláusula/Título no edital",
+                        "Observação": "Observações relevantes"
+                    }},,
+                    "Doc 15": {{
                         "Nome": "Nome, modelo ou tipo do documento",
                         "Localização da Informação": "Item/Cláusula/Título no edital",
                         "Observação": "Observações relevantes"
