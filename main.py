@@ -1,51 +1,81 @@
 """
-Módulo para geração de arquivos Excel a partir da análise de editais públicos.
+Módulo para geração de arquivos Excel a partir de dados de editais públicos.
 
-Este módulo contém funções que processam dados estruturados extraídos de editais
-de pregão e geram arquivos Excel para facilitar a consulta e o gerenciamento
-das informações.
+Este módulo contém funções utilitárias que transformam dados estruturados
+(geralmente em formato JSON) extraídos de editais de pregão em arquivos
+Excel formatados para download. O objetivo é facilitar a consulta e o
+gerenciamento das informações processadas.
 
 Funções:
 ---------
-- def mostra_login():
-    Gera tela de login, para restringir o acesso para usuários 
-    registrados com senha e login
+- `gerar_excel_resumo(dados_para_excel)`:
+    Gera um arquivo Excel com um resumo completo do edital.
+    Args:
+        dados_para_excel (dict): Dicionário contendo as informações resumidas do edital.
+    Returns:
+        io.BytesIO: Objeto de arquivo em memória contendo o arquivo Excel gerado.
 
-- gerar_excel_resumo(dados_para_excel):
-    Gera um arquivo Excel com o resumo do edital, incluindo solicitações,
-    descrições e localização das informações.
+- `gerar_excel_credenciamento(dados_para_excel)`:
+    Cria um arquivo Excel listando todos os documentos necessários para o
+    credenciamento, incluindo o nome do documento, exigência, localização
+    no edital e observações relevantes.
+    Args:
+        dados_para_excel (dict): Dicionário com os dados de credenciamento.
+    Returns:
+        io.BytesIO: Objeto de arquivo em memória.
 
-- gerar_excel_credenciamento(dados_para_excel):
-    Gera um arquivo Excel com os documentos exigidos para credenciamento
-    no edital, incluindo exigências, localizações, observações e outros
-    documentos complementares identificados pela IA.
+- `gerar_excel_habilitacao(dados_para_excel)`:
+    Produz um arquivo Excel detalhando os documentos exigidos para a
+    habilitação no processo licitatório, com informações sobre a exigência,
+    localização e observações.
+    Args:
+        dados_para_excel (dict): Dicionário com os dados de habilitação.
+    Returns:
+        io.BytesIO: Objeto de arquivo em memória.
 
-- gerar_excel_habilitacao(dados_para_excel):
-    Gera um arquivo Excel com os documentos exigidos para habilitação
-    no edital, incluindo exigências, localizações e observações.
-
-- gerar_excel_extras(dados_para_excel):
-    Gera um arquivo Excel com documentos adicionais não listados
-    explicitamente no edital, mas identificados na análise da IA.
+- `gerar_excel_extras(dados_para_excel)`:
+    Elabora um arquivo Excel focado em documentos adicionais ou específicos
+    identificados pela IA que não se enquadram nas categorias padrão
+    de credenciamento ou habilitação.
+    Args:
+        dados_para_excel (dict): Dicionário com os dados dos documentos extras.
+    Returns:
+        io.BytesIO: Objeto de arquivo em memória.
 
 Dependências:
 --------------
-- pandas: Para manipulação e exportação dos dados em formato tabular.
-- io.BytesIO: Para criação do arquivo em memória, sem salvar localmente.
-- streamlit: Para exibição de mensagens de erro na interface do aplicativo.
+- `pandas`: Biblioteca essencial para a criação e manipulação eficiente
+    de planilhas de dados e para a exportação final para o formato Excel.
+- `io.BytesIO`: Fornece uma interface de buffer de E/S em memória, permitindo
+    que os arquivos Excel sejam criados e manipulados na RAM sem a necessidade
+    de salvá-los temporariamente no disco.
+- `streamlit`: Usada na aplicação principal para gerenciar a interface,
+    especificamente para exibir os botões de download e mensagens de feedback.
 
 Uso:
 -----
-Essas funções são utilizadas dentro de um aplicativo Streamlit responsável por
-ler editais em PDF, extrair informações via IA e permitir o download de planilhas
-Excel contendo os dados processados.
+As funções deste módulo são integradas a um aplicativo Streamlit que lê
+editais em PDF. Após a extração e o processamento dos dados por uma IA,
+as funções são chamadas para gerar planilhas Excel que podem ser baixadas
+diretamente pelo usuário.
 
-Exemplo:
----------
-dados_processados = {...}
-arquivo_excel = gerar_excel_resumo(dados_processados)
-if arquivo_excel:
-    st.download_button("Baixar Excel", data=arquivo_excel, file_name="Resumo.xlsx")
+Exemplo de uso:
+----------------
+```python
+# Supondo que 'dados_processados' seja um dicionário com os dados extraídos
+dados_processados = {"Resumo do Edital": {...}}
+
+# Chama a função para gerar o arquivo Excel
+arquivo_excel_resumo = gerar_excel_resumo(dados_processados)
+
+if arquivo_excel_resumo:
+    # Cria um botão de download no Streamlit para o arquivo
+    st.download_button(
+        label="Baixar Planilha Resumo",
+        data=arquivo_excel_resumo,
+        file_name="resumo_do_edital.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 """
 
 import os
@@ -63,10 +93,13 @@ from credentials import USERS_HASHES
 
 
 # gerar_excel_resumo, gerar_excel_habilitacao, gerar_excel_credenciamento
-from utils.excel_utils import gerar_excel_resumo
-from utils.excel_utils import gerar_excel_habilitacao
-from utils.excel_utils import gerar_excel_credenciamento
-from utils.excel_utils import gerar_excel_extras
+from utils.excel_utils import (
+    gerar_excel_resumo,
+    gerar_excel_habilitacao,
+    gerar_excel_credenciamento,
+    gerar_excel_extras
+    )
+
 
 # SECTION LOGIN ----------------------------------------
 if "logged_in" not in st.session_state:
@@ -74,6 +107,7 @@ if "logged_in" not in st.session_state:
 
 
 def mostra_login():
+    """ Função para gerar tela de acesso do usuários"""
     st.title("🔒 Acesso Restrito")
     st.image("assets/holy dragon logo.png", width=600)
     st.markdown("---")
@@ -125,9 +159,9 @@ else:
 
     if st.session_state["username"] == "Rafael Fortunato":
         if st.button("Gerenciar Usuários", key="admin_button"):
-            # Alterna para Mostrar a pagina de administração 
+            # Alterna para Mostrar a pagina de administração
             st.session_state["show_admin"] = not st.session_state.get("show_admin", False)
-            
+
         if st.session_state.get("show_admin"):
             add_user_page()
             # impede a execução do restante do script se a pagina admin estiver carregada
@@ -229,8 +263,8 @@ else:
                 }},
                 **Instruções Cruciais:**
                 1.  **Analise todo o edital com extrema atenção** para não perder nenhum detalhe.
-                2.  **Preencha TODOS os campos** no objeto "Resumo do Edital". Se a informação não for encontrada, indique
-                    explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
+                2.  **Preencha TODOS os campos** no objeto "Resumo do Edital". Se a informação não for encontrada,
+                indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
                 4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação" (Item/Cláusula) e
                     quaisquer "Observações" pertinentes (prazos de emissão, requisitos de autenticação, etc.).
                 6.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas
@@ -281,8 +315,9 @@ else:
             with st.spinner("Analisando o edital e gerando a planilha..."):
                 # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
                 PROMPT_COMPLETO_CREDENCIAMENTO = f"""
-                Você é um especialista em leitura técnica de editais públicos de pregão. Sua tarefa é identificar e extrair
-                informações sobre os documentos exigidos para credenciamento, mesmo que apresentados de formas variadas.
+                Você é um especialista em leitura técnica de editais públicos de pregão. Sua tarefa é identificar e
+                extrair informações sobre os documentos exigidos para credenciamento, mesmo que apresentados de
+                formas variadas.
                 Para cada documento encontrado, forneça as seguintes informações:
 
                 -**Exigência**: Indique se o documento é "Obrigatório", "Opcional" ou "Não informado".
@@ -321,8 +356,8 @@ else:
                 **Instruções Cruciais:**
                 1.  **Analise o arquivo carregado com foco na secção ou trecho de Credenciamento com extrema atenção**
                     para não perder nenhum detalhe.
-                2.  **Preencha TODOS os campos** no objeto "Credenciamento do Edital". Se a informação não for encontrada,
-                    indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
+                2.  **Preencha TODOS os campos** no objeto "Credenciamento do Edital". Se a informação não for
+                encontrada, indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
                 3.  Para as listas de documentos (Credenciamento do Edital) , inclua **TODOS os itens
                     encontrados no edital**, mesmo que pareçam óbvios ou genéricos.
                 4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação do documento"
@@ -362,7 +397,8 @@ else:
                             st.download_button(
                                 label="⬇️ Baixar planilha Credenciamento do edital",
                                 data=arquivo_excel,
-                                file_name=st.session_state["pdf_carregado_nome"].replace(".pdf", "_credenciamento.xlsx"),
+                                file_name=st.session_state["pdf_carregado_nome"].replace(
+                                    ".pdf", "_credenciamento.xlsx"),
                                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                             )
                         else:
@@ -383,9 +419,9 @@ else:
             with st.spinner("Analisando o edital e gerando a planilha..."):
                 # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
                 PROMPT_COMPLETO_HABILITACAO = f"""
-                Você é um especialista em leitura técnica de editais públicos de pregão. Sua tarefa é identificar e extrair
-                da **Seção ou Fase de Habilitação** informações sobre os documentos exigidos para habilitação, mesmo que
-                apresentados de formas variadas.
+                Você é um especialista em leitura técnica de editais públicos de pregão. Sua tarefa é identificar
+                e extrair da **Seção ou Fase de Habilitação** informações sobre os documentos exigidos para
+                habilitação, mesmo que apresentados de formas variadas.
                 Para cada documento encontrado, forneça as seguintes informações:
 
                 - **Exigência de apresentação**: Indique se o documento é "Obrigatório", "Opcional" ou "Não informado".
@@ -617,12 +653,13 @@ else:
                 **Instruções para a Resposta:**
                 1.  Leia o edital completo com atenção para garantir que nenhum documento seja omitido.
                 2.  Para cada documento encontrado que não está na lista acima, extraia as seguintes informações:
-                    -   **Nome do Documento**: O nome exato ou uma descrição clara do documento (ex: "Declaração
+                    -  **Nome do Documento**: O nome exato ou uma descrição clara do documento (ex: "Declaração
                     de Visita Técnica").
                     -   **Localização no Edital**: A seção, cláusula ou item onde o documento é mencionado
                     (ex: "Item 7.2.3").
-                    -   **Observações Relevantes**: Qualquer detalhe importante, como prazos, formatos, requisitos
-                    específicos ou condições de apresentação (ex: "válido por 60 dias" ou "modelo disponível no Anexo III").
+                    -  **Observações Relevantes**: Qualquer detalhe importante, como prazos, formatos, requisitos
+                    específicos ou condições de apresentação (ex: "válido por 60 dias" ou "modelo disponível
+                    no Anexo III").
                 3.  **A saída DEVE ser um JSON válido e completo**, onde cada objeto representa um documento extra. Se
                 nenhum documento adicional for encontrado, retorne um objeto vazio.
 

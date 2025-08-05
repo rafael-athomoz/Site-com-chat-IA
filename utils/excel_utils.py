@@ -1,39 +1,73 @@
 """
-Módulo para geração de arquivos Excel a partir da análise de editais públicos.
+Módulo para geração de arquivos Excel a partir de dados de editais públicos.
 
-Este módulo contém funções que processam dados estruturados extraídos de editais
-de pregão e geram arquivos Excel para facilitar a consulta e o gerenciamento
-das informações.
+Este módulo contém funções utilitárias que transformam dados estruturados,
+extraídos de editais de pregão eletrônico, em arquivos Excel para download.
+O objetivo é organizar e facilitar o gerenciamento das informações
+processadas pela análise do edital.
 
 Funções:
 ---------
-- gerar_excel_resumo(dados_para_excel):
-    Gera um arquivo Excel com o resumo do edital, incluindo solicitações,
-    descrições e localização das informações.
+- `gerar_excel_resumo(dados_para_excel)`:
+    Gera um arquivo Excel contendo um resumo detalhado do edital,
+    incluindo itens como solicitações, descrições e a localização
+    dessas informações dentro do documento original.
 
-- gerar_excel_credenciamento(dados_para_excel):
-    Gera um arquivo Excel com os documentos exigidos para credenciamento
-    no edital, incluindo exigências, localizações, observações e outros
-    documentos complementares identificados pela IA.
+    Args:
+        dados_para_excel (dict): Um dicionário com os dados resumidos do edital.
+
+    Returns:
+        io.BytesIO: Um objeto de arquivo em memória (BytesIO) do arquivo Excel gerado.
+
+- `gerar_excel_credenciamento(dados_para_excel)`:
+    Cria um arquivo Excel com a lista de documentos necessários para o
+    credenciamento. A planilha detalha as exigências, a localização
+    no edital, observações e quaisquer outros documentos complementares.
+    
+    Args:
+        dados_para_excel (dict): Um dicionário com os dados de credenciamento.
+
+    Returns:
+        io.BytesIO: Um objeto de arquivo em memória (BytesIO) do arquivo Excel gerado.
 
 Dependências:
 --------------
-- pandas: Para manipulação e exportação dos dados em formato tabular.
-- io.BytesIO: Para criação do arquivo em memória, sem salvar localmente.
-- streamlit: Para exibição de mensagens de erro na interface do aplicativo.
+- `pandas`: Essencial para a manipulação e a exportação eficiente de dados
+    estruturados para o formato de planilha.
+- `io.BytesIO`: Utilizado para criar o arquivo Excel diretamente na memória,
+    sem a necessidade de salvá-lo no disco, o que é ideal para web apps.
+- `streamlit`: (Contextual) A biblioteca de UI que integra as funcionalidades
+    deste módulo, permitindo que os arquivos gerados sejam oferecidos para
+    download ao usuário.
 
 Uso:
 -----
-Essas funções são utilizadas dentro de um aplicativo Streamlit responsável por
-ler editais em PDF, extrair informações via IA e permitir o download de planilhas
-Excel contendo os dados processados.
+As funções deste módulo são tipicamente chamadas no fluxo de uma aplicação
+Streamlit, após o processamento de um edital em PDF. O retorno das funções
+é um objeto `io.BytesIO` que pode ser passado diretamente para o componente
+`st.download_button` para permitir o download ao usuário.
 
-Exemplo:
----------
-dados_processados = {...}
-arquivo_excel = gerar_excel_resumo(dados_processados)
-if arquivo_excel:
-    st.download_button("Baixar Excel", data=arquivo_excel, file_name="Resumo.xlsx")
+Exemplo de uso em um script Streamlit:
+--------------------------------------
+```python
+import streamlit as st
+from utils.excel_utils import gerar_excel_resumo
+from io import BytesIO
+
+# Supondo que 'dados_processados' contenha os dados extraídos do edital
+dados_processados = {...} # Exemplo de dados extraídos
+
+# Gera o arquivo Excel a partir dos dados processados
+excel_file = gerar_excel_resumo(dados_processados)
+
+if excel_file:
+    # Cria o botão de download na interface
+    st.download_button(
+        label="Baixar Planilha Resumo",
+        data=excel_file,
+        file_name="resumo_do_edital.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 """
 from io import BytesIO
 
