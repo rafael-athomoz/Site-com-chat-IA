@@ -136,8 +136,10 @@ if not st.session_state.get("logged_in"):
     mostra_login()
 else:
     # Carrega variáveis de ambiente
-    load_dotenv()
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = st.secrets["OPENAI_API_KEY"]
+
+    # Apenas para ambiente de desenvolvimento
+    # load_dotenv()
 
     if not api_key:
         st.error("""Erro: A chave da API da OpenAI não foi encontrada.
