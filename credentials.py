@@ -28,7 +28,7 @@ escalabilidade e mecanismos de gerenciamento de dados mais robustos.
 
 """
 USERS_HASHES = {
+    'VitoriaLicitacao': '$2b$12$ZJ89Iok7ubup1F3ug6J7u.P2SKtyWITY3Nb5ifQuXhRQDDA1RliNm',
     'Usuario2@licitacao': '$2b$12$mhaO76FrQXDNH.MTbIGG1uba4WCC9SmCJtQX.AesBBfCPJwAc.Jvm',
-    'Vitoria@licitacao': '$2b$12$MQ/tGOzAD8azddTPiVDxoua4cmcx7r4pjDA4MdfkAwGXgwbkW5KMq',
     'Rafael Fortunato': '$2b$12$rBXhTU1ZMcmq/n77uwJPuenzxLOyVH.iXK8eZSb7eGgvo4TqYOK8m',
 }
