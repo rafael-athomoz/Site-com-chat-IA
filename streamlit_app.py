@@ -268,7 +268,7 @@ else:
                     }},
                     "Contatos para informações": {{
                         "Descrição": "E-mail ou telefone de contato",
-                        "Localização da Informação": "Item/parágrafo"
+                        "Localização da Informação": "Item/Cláusula/Título no edital"
                     }}
                 }},
                 **Instruções Cruciais:**
@@ -282,7 +282,7 @@ else:
 
                 **Conteúdo do Edital:**
                 \"\"\"
-                {st.session_state["contexto_pdf"][:40000]}
+                {st.session_state["contexto_pdf"][:50000]}
                 \"\"\"
                 """
 
