@@ -254,8 +254,12 @@ else:
                         "Descrição": "Prazo para envio de propostas readequadas, se aplicável.",
                         "Localização da Informação": "Item/Cláusula/Título no edital"
                     }},
-                    "Exige catálogo e qual o período de apresentação": {{
-                        "Descrição": "Exigência de catálogo e o período de apresentação, se houver.",
+                    "Pede apresentação de catálogo": {{
+                        "Descrição": "Exigência de apresentação de catálogo.",
+                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                    }},
+                    "Qual o período de apresentação do Catálogo": {{
+                        "Descrição": "Apresentação quando solicitado ou na apresentação da proposta",
                         "Localização da Informação": "Item/Cláusula/Título no edital"
                     }},
                     "Exigência de atestado do Objeto ou quantitativo e sua porcentagem": {{
