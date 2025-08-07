@@ -278,7 +278,7 @@ else:
 
                 **Conteúdo do Edital:**
                 \"\"\"
-                {st.session_state["contexto_pdf"][:30000]}
+                {st.session_state["contexto_pdf"][:40000]}
                 \"\"\"
                 """
 
