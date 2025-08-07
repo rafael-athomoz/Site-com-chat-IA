@@ -196,83 +196,94 @@ else:
                 # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
                 PROMPT_COMPLETO_RESUMO = f"""
                 Você é um especialista em leitura técnica e detalhada de editais públicos de pregão.
-                Sua tarefa é extrair **todas as informações essenciais e documentos exigidos** do edital fornecido,
+                Sua tarefa é extrair **todas as informações essenciais e documentos exigidos** mantendo 
+                a confiabilidade e fidelidade das informações do edital fornecido,
                 organizando-as em um **objeto JSON complexo** com as seguintes chaves e estruturas exatas:
 
                 "Resumo do Edital": {{
                     "Objeto": {{
                         "Descrição": "Descrição concisa do objeto do edital.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
                     }},
                     "Modalidade do Pregão": {{
                         "Descrição": "Ex: Pregão Eletrônico, Presencial.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
                     }},
                     "Modo de Disputa": {{
                         "Descrição": "Ex: Aberto, Fechado, Livre.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
                     }},
                     "Tipo de Julgamento": {{
                         "Tipo de Julgamento do objeto licitado": "Ex: Menor Preço, Melhor Técnica.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
                     }},
-                    "Data e Horário de Abertura": {{
-                        "Descrição": "Data e hora exatas da abertura do pregão.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Data e Horário de Período de lances do pregão": {{
+                        "Descrição": "Data e hora exatas da disputa de preços **Sessão Publica**.",
+                        "Localização da Informação": "Item/parágrafo"
                     }},
                     "Endereço de entrega do objeto": {{
                         "Descrição": "Endereço completo para entrega do objeto.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
                     }},
-                    "Critérios de Avaliação": {{
-                        "Descrição": "Critérios utilizados para avaliação das propostas.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                    "Critérios de de Avaliação": {{
+                        "Descrição": "Critérios utilizados para julgamento das propostas.",
+                        "Localização da Informação": "Item/parágrafo"
                     }},
                     "Valor estimado total": {{
                         "Descrição": "Valor total estimado do objeto licitado.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
                     }},
                     "Plataforma onde ocorrerá o pregão": {{
                         "Descrição": "Plataforma eletrônica onde o pregão será realizado.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
                     }},
                     "Validade dos Documentos de Habilitação ": {{
                         "Descrição": "Validade dos documentos exigidos para habilitação econômico/financeira.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
                     }},
                     "Período de envio dos documentos de Habilitação": {{
                         "Descrição": "Período para envio dos documentos de habilitação.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
                     }},
                     "Modelos de garantias exigidas": {{
                         "Descrição": "Modelos de garantias exigidas, modelo de garantia on-site ou por item, se houver.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
                     }},
                     "Prazo de envio da Proposta readequada": {{
                         "Descrição": "Prazo para envio de propostas readequadas, se aplicável.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
                     }},
-                    "Exige catálogo e qual o período de apresentação": {{
+                    "Exige apresentação de catálogo ou ficha técnica do produto": {{
                         "Descrição": "Exigência de catálogo e o período de apresentação, se houver.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
+                    }},
+                    "Qual o período de apresentação do Catalogo": {{
+                        "Descrição": "Qual fase de apresentação, se houver.",
+                        "Localização da Informação": "Item/parágrafo"
                     }},
                     "Exigência de atestado do Objeto ou quantitativo e sua porcentagem": {{
                         "Descrição": "Exigência de atestado de capacidade técnica e porcentagem mínima.",
-                        "Localização da Informação": "Item/Cláusula/Título no edital"
+                        "Localização da Informação": "Item/parágrafo"
+                    }},
+                    "Contatos para informações": {{
+                        "Descrição": "E-mail ou telefone de contato",
+                        "Localização da Informação": "Item/parágrafo"
                     }}
                 }},
                 **Instruções Cruciais:**
-                1.  **Analise todo o edital com extrema atenção** para não perder nenhum detalhe.
+                1.  **Analise todo o edital com extrema atenção** para não perder nenhum detalhe e manter
+                a confiabilidade e exatidão das informações.
                 2.  **Preencha TODOS os campos** no objeto "Resumo do Edital". Se a informação não for encontrada,
                 indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
-                4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação" (Item/Cláusula) e
-                    quaisquer "Observações" pertinentes (prazos de emissão, requisitos de autenticação, etc.).
+                4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação"
+                Item/parágrafo (ex: item 7.5 da habilitação) e quaisquer "Observações" pertinentes (prazos de emissão,
+                requisitos de autenticação, etc.).
                 6.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas
-                    estejam vazias se nenhuma informação for encontrada.
+                estejam vazias se nenhuma informação for encontrada.
 
                 **Conteúdo do Edital:**
                 \"\"\"
-                {st.session_state["contexto_pdf"][:10000]}
+                {st.session_state["contexto_pdf"][:40000]}
                 \"\"\"
                 """
 
@@ -731,7 +742,7 @@ else:
                 "content": (
                     "Você é um assistente especializado em análise de editais públicos."
                     "Sua função é responder a perguntas sobre o edital fornecido, "
-                    "extraindo informações relevantes do texto. Mantenha as respostas"
+                    "Extraindo informações relevantes do texto. Mantendo a fidelidade e confiabilidade das respostas"
                     "concisas e diretas."
                 )
             }

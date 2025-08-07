@@ -197,8 +197,9 @@ else:
                 # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
                 PROMPT_COMPLETO_RESUMO = f"""
                 Você é um especialista em leitura técnica e detalhada de editais públicos de pregão.
-                Sua tarefa é extrair **todas as informações essenciais e documentos exigidos** do edital fornecido,
-                organizando-as em um **objeto JSON complexo** com as seguintes chaves e estruturas exatas:
+                Sua tarefa é extrair **todas as informações essenciais e documentos exigidos** mantendo
+                a exatidão da informação do edital fornecido, organizando-as em um
+                **objeto JSON complexo** com as seguintes chaves e estruturas exatas:
 
                 "Resumo do Edital": {{
                     "Objeto": {{
@@ -260,6 +261,10 @@ else:
                     "Exigência de atestado do Objeto ou quantitativo e sua porcentagem": {{
                         "Descrição": "Exigência de atestado de capacidade técnica e porcentagem mínima.",
                         "Localização da Informação": "Item/Cláusula/Título no edital"
+                    }},
+                    "Contatos para informações": {{
+                        "Descrição": "E-mail ou telefone de contato",
+                        "Localização da Informação": "Item/parágrafo"
                     }}
                 }},
                 **Instruções Cruciais:**
@@ -273,7 +278,7 @@ else:
 
                 **Conteúdo do Edital:**
                 \"\"\"
-                {st.session_state["contexto_pdf"][:10000]}
+                {st.session_state["contexto_pdf"][:30000]}
                 \"\"\"
                 """
 
