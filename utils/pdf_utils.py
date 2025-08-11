@@ -85,3 +85,28 @@ def extrair_texto_pdf(uploaded_file):
     except Exception as e:
         st.error(f"Erro ao extrair texto do PDF: {e}")
         return None
+
+
+def dividir_texto_em_chunks(texto, tamanho_maximo=3000, sobreposicao=200):
+    """
+    Divide o texto em partes menores para processamento em LLMs.
+    - tamanho_maximo: número máximo de caracteres por chunk
+    - sobreposicao: número de caracteres repetidos entre os chunks (para contexto)
+
+    Retorna: lista de strings (chunks)
+    """
+    chunks = []
+    inicio = 0
+
+    while inicio < len(texto):
+        fim = inicio + tamanho_maximo
+        # Ajusta para cortar no fim de uma frase
+        if fim < len(texto):
+            while fim > inicio and texto[fim] not in ".!?":
+                fim -= 1
+            if fim == inicio:  # caso não tenha pontuação próxima
+                fim = inicio + tamanho_maximo
+        chunks.append(texto[inicio:fim].strip())
+        inicio = fim - sobreposicao
+
+    return chunks

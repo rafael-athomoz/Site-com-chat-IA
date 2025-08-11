@@ -86,7 +86,7 @@ from openai import OpenAI
 import bcrypt
 
 # extrair_texto_pdf
-from utils.pdf_utils import extrair_texto_pdf
+from utils.pdf_utils import extrair_texto_pdf, dividir_texto_em_chunks
 from utils.admin_utils import add_user_page
 from credentials import USERS_HASHES
 
@@ -190,113 +190,164 @@ else:
                 st.session_state["contexto_pdf"] = ""
 
     # SECTION PROMPTS ---------------------------------------------------------------------
-    if st.session_state["contexto_pdf"]:  # resumo edital prompt
-        if st.button("📊 Analisar PDF e gerar planilha com Resumo do edital"):
-            with st.spinner("Analisando o edital e gerando a planilha..."):
-                # --- NOVO PROMPT ALTAMENTE ESPECÍFICO PARA EXTRAÇÃO COMPLETA ---
-                PROMPT_COMPLETO_RESUMO = f"""
-                Você é um especialista em leitura técnica e detalhada de editais públicos de pregão.
-                Sua tarefa é extrair **todas as informações essenciais e documentos exigidos** mantendo 
-                a confiabilidade e fidelidade das informações do edital fornecido,
-                organizando-as em um **objeto JSON complexo** com as seguintes chaves e estruturas exatas:
+    # ... imports e login (igual)
 
-                "Resumo do Edital": {{
-                    "Objeto": {{
-                        "Descrição": "Descrição concisa do objeto do edital.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Modalidade do Pregão": {{
-                        "Descrição": "Ex: Pregão Eletrônico, Presencial.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Modo de Disputa": {{
-                        "Descrição": "Ex: Aberto, Fechado, Livre.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Tipo de Julgamento": {{
-                        "Tipo de Julgamento do objeto licitado": "Ex: Menor Preço, Melhor Técnica.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Data e Horário de Período de lances do pregão": {{
-                        "Descrição": "Data e hora exatas da disputa de preços **Sessão Publica**.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Endereço de entrega do objeto": {{
-                        "Descrição": "Endereço completo para entrega do objeto.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Critérios de de Avaliação": {{
-                        "Descrição": "Critérios utilizados para julgamento das propostas.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Valor estimado total": {{
-                        "Descrição": "Valor total estimado do objeto licitado.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Plataforma onde ocorrerá o pregão": {{
-                        "Descrição": "Plataforma eletrônica onde o pregão será realizado.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Validade dos Documentos de Habilitação ": {{
-                        "Descrição": "Validade dos documentos exigidos para habilitação econômico/financeira.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Período de envio dos documentos de Habilitação": {{
-                        "Descrição": "Período para envio dos documentos de habilitação.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Modelos de garantias exigidas": {{
-                        "Descrição": "Modelos de garantias exigidas, modelo de garantia on-site ou por item, se houver.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Prazo de envio da Proposta readequada": {{
-                        "Descrição": "Prazo para envio de propostas readequadas, se aplicável.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Exige apresentação de catálogo ou ficha técnica do produto": {{
-                        "Descrição": "Exigência de catálogo e o período de apresentação, se houver.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Qual o período de apresentação do Catalogo": {{
-                        "Descrição": "Qual fase de apresentação, se houver.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Exigência de atestado do Objeto ou quantitativo e sua porcentagem": {{
-                        "Descrição": "Exigência de atestado de capacidade técnica e porcentagem mínima.",
-                        "Localização da Informação": "Item/parágrafo"
-                    }},
-                    "Contatos para informações": {{
-                        "Descrição": "E-mail ou telefone de contato",
-                        "Localização da Informação": "Item/parágrafo"
-                    }}
+# dentro do seu else após verificar login e carregar PDF
+
+    def analisar_editais_por_chunks(client, texto, tamanho_chunk=12000):
+        """
+        Divide o texto em chunks e analisa cada um com o modelo, retornando uma lista
+        de respostas JSON parciais para depois unificar.
+        """
+        chunks = dividir_texto_em_chunks(texto, tamanho_maximo=tamanho_chunk)
+        resultados_parciais = []
+
+        for i, chunk in enumerate(chunks, start=1):
+            st.info(f"Analisando chunk {i}/{len(chunks)}...")
+
+            prompt_chunk = f"""
+            Você é um especialista em leitura técnica e detalhada de editais públicos de pregão.
+            Sua tarefa é extrair **todas as informações essenciais e documentos exigidos** mantendo 
+            a confiabilidade e fidelidade das informações do edital fornecido,
+            organizando-as em um **objeto JSON complexo** com as seguintes chaves e estruturas exatas:
+
+            "Resumo do Edital": {{
+                "Objeto": {{
+                    "Descrição": "Descrição concisa do objeto do edital.",
+                    "Localização da Informação": "Item/parágrafo"
                 }},
-                **Instruções Cruciais:**
-                1.  **Analise todo o edital com extrema atenção** para não perder nenhum detalhe e manter
-                a confiabilidade e exatidão das informações.
-                2.  **Preencha TODOS os campos** no objeto "Resumo do Edital". Se a informação não for encontrada,
-                indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
-                4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação"
-                Item/parágrafo (ex: item 7.5 da habilitação) e quaisquer "Observações" pertinentes (prazos de emissão,
-                requisitos de autenticação, etc.).
-                6.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas
-                estejam vazias se nenhuma informação for encontrada.
+                "Modalidade do Pregão": {{
+                    "Descrição": "Ex: Pregão Eletrônico, Presencial.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Modo de Disputa": {{
+                    "Descrição": "Ex: Aberto, Fechado, Livre.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Tipo de Julgamento": {{
+                    "Tipo de Julgamento do objeto licitado": "Ex: Menor Preço, Melhor Técnica.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Data e Horário de Período de lances do pregão": {{
+                    "Descrição": "Data e hora exatas da disputa de preços **Sessão Publica**.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Endereço de entrega do objeto": {{
+                    "Descrição": "Endereço completo para entrega do objeto.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Critérios de de Avaliação": {{
+                    "Descrição": "Critérios utilizados para julgamento das propostas.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Valor estimado total": {{
+                    "Descrição": "Valor total estimado do objeto licitado.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Plataforma onde ocorrerá o pregão": {{
+                    "Descrição": "Plataforma eletrônica onde o pregão será realizado.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Validade dos Documentos de Habilitação ": {{
+                    "Descrição": "Validade dos documentos exigidos para habilitação econômico/financeira.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Período de envio dos documentos de Habilitação": {{
+                    "Descrição": "Período para envio dos documentos de habilitação.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Modelos de garantias exigidas": {{
+                    "Descrição": "Modelos de garantias exigidas, modelo de garantia on-site ou por item, se houver.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Prazo de envio da Proposta readequada": {{
+                    "Descrição": "Prazo para envio de propostas readequadas, se aplicável.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Exige apresentação de catálogo ou ficha técnica do produto": {{
+                    "Descrição": "Exigência de catálogo e o período de apresentação, se houver.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Qual o período de apresentação do Catalogo": {{
+                    "Descrição": "Qual fase de apresentação, se houver.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Exigência de atestado do Objeto ou quantitativo e sua porcentagem": {{
+                    "Descrição": "Exigência de atestado de capacidade técnica e porcentagem mínima.",
+                    "Localização da Informação": "Item/parágrafo"
+                }},
+                "Contatos para informações": {{
+                    "Descrição": "E-mail ou telefone de contato",
+                    "Localização da Informação": "Item/parágrafo"
+                }}
+            }},
+            **Instruções Cruciais:**
+            1.  **Analise todo o edital com extrema atenção** para não perder nenhum detalhe e manter
+            a confiabilidade e exatidão das informações.
+            2.  **Preencha TODOS os campos** no objeto "Resumo do Edital". Se a informação não for encontrada,
+            indique explicitamente "Não informado" ou deixe em branco, mas não omita o campo.
+            4.  Para cada documento, detalhe se é "Obrigatório", a "Localização da Informação"
+            Item/parágrafo (ex: item 7.5 da habilitação) e quaisquer "Observações" pertinentes (prazos de emissão,
+            requisitos de autenticação, etc.).
+            6.  **A saída DEVE ser um JSON válido e completo**, com todas as chaves solicitadas, mesmo que as listas
+            estejam vazias se nenhuma informação for encontrada.
 
-                **Conteúdo do Edital:**
-                \"\"\"
-                {st.session_state["contexto_pdf"][:40000]}
-                \"\"\"
-                """
+            Trecho do edital:
+            \"\"\"{chunk}\"\"\"
 
-                # --- FIM DO NOVO PROMPT ---
+            Retorne apenas o JSON com as informações encontradas neste trecho, mesmo que parciais.
+            Se não encontrar alguma informação, coloque "Não informado" para o campo correspondente.
+            """
 
+            try:
+                resposta = client.chat.completions.create(
+                    model="gpt-4o",
+                    response_format={"type": "json_object"},
+                    messages=[{"role": "user", "content": prompt_chunk}]
+                )
+                resposta_json_str = resposta.choices[0].message.content.strip()
+                dados_parciais = json.loads(resposta_json_str)
+                resultados_parciais.append(dados_parciais)
+
+            except Exception as e:
+                st.error(f"Erro no chunk {i}: {e}")
+                # continua para próximo chunk mesmo com erro
+
+        return resultados_parciais
+
+    def unir_resultados_parciais(resultados):
+        """
+        Une múltiplos JSONs parciais em um JSON único consolidado.
+        """
+        resultado_final = {"Resumo do Edital": {}}
+
+        for resultado in resultados:
+            resumo = resultado.get("Resumo do Edital", {})
+            for chave, valor in resumo.items():
+                if chave not in resultado_final["Resumo do Edital"]:
+                    resultado_final["Resumo do Edital"][chave] = valor
+                else:
+                    valor_atual = resultado_final["Resumo do Edital"][chave]
+                    if isinstance(valor, dict) and isinstance(valor_atual, dict):
+                        if valor_atual.get("Descrição") == "Não informado" and valor.get("Descrição") != "Não informado":
+                            resultado_final["Resumo do Edital"][chave]["Descrição"] = valor.get("Descrição")
+                        loc_atual = valor_atual.get("Localização da Informação", "")
+                        loc_novo = valor.get("Localização da Informação", "")
+                        if loc_novo and loc_novo not in loc_atual:
+                            resultado_final["Resumo do Edital"][chave]["Localização da Informação"] = (loc_atual + ", " + loc_novo).strip(", ")
+                    else:
+                        if valor_atual == "Não informado" and valor != "Não informado":
+                            resultado_final["Resumo do Edital"][chave] = valor
+
+        return resultado_final
+    if st.session_state["contexto_pdf"]:  # Credenciamento edital prompt
+        if st.button("📊 Analisar PDF e gerar planilha com Resumo do edital"):
+            with st.spinner("Analisando o edital em chunks e gerando a planilha..."):
                 try:
-                    resposta = client.chat.completions.create(
-                        model="gpt-4o",  # Usar o modelo mais capaz para extração detalhada
-                        response_format={"type": "json_object"},  # Garantir que a saída seja JSON
-                        messages=[{"role": "user", "content": PROMPT_COMPLETO_RESUMO}]
-                    )
-                    resposta_json_str = resposta.choices[0].message.content.strip()
-                    dados_completos = json.loads(resposta_json_str)
+                    lista_resultados = analisar_editais_por_chunks(
+                        client, st.session_state["contexto_pdf"], tamanho_chunk=20000
+                        )
+                    dados_completos = unir_resultados_parciais(lista_resultados)
 
                     if dados_completos:
                         arquivo_excel = gerar_excel_resumo(dados_completos)
@@ -312,12 +363,9 @@ else:
                             st.warning("Nenhuma informação foi gerada ou houve um erro na criação do Excel.")
                     else:
                         st.warning("A IA não retornou um JSON de análise completo. Verifique o prompt ou o edital.")
-                        st.code(resposta_json_str)
-                except json.JSONDecodeError as e:
-                    st.error(f"Erro ao decodificar JSON da IA. O formato de saída pode estar incorreto: {e}")
-                    st.code(resposta_json_str)
+
                 except Exception as e:
-                    st.error(f"Ocorreu um erro ao processar a solicitação: {e}")
+                    st.error(f"Erro geral ao processar a solicitação: {e}")
 
         st.markdown("---")
 
